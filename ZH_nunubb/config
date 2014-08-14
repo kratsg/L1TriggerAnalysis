@@ -1,0 +1,35 @@
+#Tue Jul 08 13:27:51 -0500 2014
+# This file was dynamically generated from make_config.rb
+Universe = vanilla 
+Executable = main.sh
+#Requirements = (OpSysAndVer =?= "SL6") && ( IS_RCC_uchicago )
+Requirements = (OpSysAndVer =?= "SL6") && ( IS_RCC_fresnostate =!= True )
+Error = out/error.$(Cluster)-$(Process)
+Output = out/output.$(Cluster)-$(Process)
+Log = out/log.$(Cluster)-$(Process)
++ProjectName="atlas-org-uchicago"
+should_transfer_files = YES
+when_to_transfer_output = ON_Exit
+transfer_output         = True
+transfer_input_files    = /home/kratsg/L1TriggerAnalysis/.local, /home/kratsg/L1TriggerAnalysis/ZH_nunubb/main.py
+transfer_output_files   = data
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CTEQ6L1_ZH125_nunubb.root 0 1000
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CTEQ6L1_ZH125_nunubb.root 1000 1000
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CTEQ6L1_ZH125_nunubb.root 2000 1000
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CTEQ6L1_ZH125_nunubb.root 3000 1000
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CTEQ6L1_ZH125_nunubb.root 4000 1000
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CTEQ6L1_ZH125_nunubb.root 5000 1000
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CTEQ6L1_ZH125_nunubb.root 6000 1000
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CTEQ6L1_ZH125_nunubb.root 7000 1000
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CTEQ6L1_ZH125_nunubb.root 8000 1000
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CTEQ6L1_ZH125_nunubb.root 9000 1000
+Queue 1

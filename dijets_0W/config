@@ -1,0 +1,415 @@
+#Tue Jul 08 13:16:10 -0500 2014
+# This file was dynamically generated from make_config.rb
+Universe = vanilla 
+Executable = main.sh
+#Requirements = (OpSysAndVer =?= "SL6") && ( IS_RCC_mwt2 )
+Requirements = (OpSysAndVer =?= "SL6") && ( IS_RCC_fresnostate =!= True )
+Error = out/error.$(Cluster)-$(Process)
+Output = out/output.$(Cluster)-$(Process)
+Log = out/log.$(Cluster)-$(Process)
++ProjectName="atlas-org-uchicago"
+should_transfer_files = YES
+when_to_transfer_output = ON_Exit
+transfer_output         = True
+transfer_input_files    = /home/kratsg/L1TriggerAnalysis/.local, /home/kratsg/L1TriggerAnalysis/dijets_0W/main.py
+transfer_output_files   = data
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_0.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_0.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_0.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_0.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_0.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_1.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_1.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_1.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_1.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_1.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_2.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_2.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_2.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_2.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_2.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_3.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_3.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_3.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_3.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_3.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_4.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_4.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_4.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_4.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_4.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_5.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_5.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_5.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_5.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_5.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_6.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_6.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_6.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_6.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_6.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_7.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_7.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_7.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_7.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_7.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_8.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_8.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_8.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_8.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_8.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_9.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_9.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_9.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_9.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_9.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_10.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_10.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_10.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_10.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_10.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_11.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_11.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_11.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_11.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_11.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_12.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_12.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_12.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_12.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_12.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_13.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_13.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_13.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_13.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_13.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_14.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_14.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_14.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_14.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_14.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_15.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_15.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_15.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_15.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_15.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_16.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_16.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_16.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_16.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_16.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_17.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_17.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_17.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_17.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_17.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_18.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_18.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_18.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_18.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_18.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_19.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_19.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_19.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_19.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_19.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_20.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_20.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_20.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_20.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_20.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_21.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_21.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_21.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_21.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_21.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_22.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_22.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_22.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_22.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_22.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_23.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_23.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_23.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_23.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_23.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_25.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_25.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_25.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_25.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_25.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_26.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_26.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_26.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_26.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_26.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_27.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_27.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_27.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_27.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_27.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_28.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_28.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_28.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_28.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_28.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_29.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_29.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_29.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_29.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_29.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_30.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_30.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_30.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_30.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_30.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_31.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_31.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_31.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_31.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_31.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_32.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_32.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_32.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_32.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_32.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_33.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_33.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_33.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_33.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_33.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_34.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_34.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_34.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_34.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_34.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_35.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_35.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_35.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_35.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_35.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_36.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_36.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_36.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_36.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_36.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_37.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_37.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_37.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_37.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_37.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_38.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_38.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_38.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_38.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_38.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_39.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_39.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_39.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_39.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_39.root 7680 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_40.root 0 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_40.root 1920 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_40.root 3840 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_40.root 5760 1920
+Queue 1
+Arguments = $(Process) root://faxbox.usatlas.org//user/kratsg/LArStudies/PileupSkim_Pythia8_AU2CT10_jetjet_JZ0W_40.root 7680 1920
+Queue 1
