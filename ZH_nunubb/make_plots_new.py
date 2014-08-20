@@ -80,7 +80,7 @@ def FWHM(bins, vals):
   return np.abs(r1-r2)
 
 filename_id = "seed%d_noise%d_signal%d_digitization%d" % (args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization)
-filename = "data/seed%d/leading_jets_%s.pkl" % (args.seedEt_thresh, filename_id)
+filename = "old_data/seed%d/leading_jets_%s.pkl" % (args.seedEt_thresh, filename_id)
 
 data = pickle.load(file(filename))
 
@@ -623,7 +623,7 @@ for col,legend in zip(['gFEX_rho_all','gFEX_rho_1','gFEX_rho_2','gFEX_rho_3','gF
     #add atlas simulation
     #    internal
     pl.text(0.05, 0.95, 'ATLAS', fontsize=42, style='italic', fontweight='bold', verticalalignment='top', horizontalalignment='left', transform=fig.gca().transAxes)
-    pl.text(0.27, 0.95, 'Internal', verticalalignment='top', horizontalalignment='left', fontsize=40, transform=fig.gca().transAxes)
+    pl.text(0.27, 0.95, 'Preliminary', verticalalignment='top', horizontalalignment='left', fontsize=40, transform=fig.gca().transAxes)
     pl.text(0.05, 0.90, 'Simulation', verticalalignment='top', horizontalalignment='left', fontsize=40, transform=fig.gca().transAxes)
 
     pl.tick_params(axis='both', which='major', labelsize=labelsize)

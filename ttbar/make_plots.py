@@ -6,6 +6,8 @@ import os
 import argparse
 import time
 
+from plots_wrapper import *
+
 #for getting FWHM
 from scipy.interpolate import UnivariateSpline, interp1d
 
@@ -27,193 +29,110 @@ parser.add_argument('--digitization', type=float, required=True, dest='digitizat
 # parse the arguments, throw errors if missing any
 args = parser.parse_args()
 
-def ensure_dir(f):
-    d = os.path.dirname(f)
-    if not os.path.exists(d):
-        os.makedirs(d)
-
-#this is a wrapper around file strings to ensure the directory exists
-#       could use decorators...
-def write_file(f):
-  ensure_dir(f)
-  return f
-
-def binomial_errors(hist_ratio, hist_one, hist_two):
-  errors = []
-  for w, num, den in zip(hist_ratio, hist_one, hist_two):
-    # root.cern.ch/root/html/src/TH1.cxx.html#l5.yxD
-    # formula cited (for histograms [num, den] with no errors) is:
-    #     w = num/den
-    #     if w = 1:
-    #             sigma = 0
-    #     else:
-    #             sigma = abs( (1 - 2*w + w**2) / den**2 )
-    if w == 1.0:
-      errors.append(0.0)
-    else:
-      errors.append( (np.abs( (1.-2.*w + w**2.)/den**2.))**0.5/2. )
-  return errors
-
-def profile(xbins, xvals, yvals):
-  # this finds the difference between successive bins and then halves it, and
-  #     then adds it back to the bins to get xpoints
-  xpoints = xbins[:-1] + np.array([v-xbins[i-1] for i,v in enumerate(xbins)][1:])/2.
-  # this digitizes our samples by figuring out which xbin each xval belongs to
-  digitized = np.digitize(xvals, xbins)
-  ymean = [np.mean(yvals[np.where(digitized == i)]) for i in np.arange(1,len(xbins)+1)][1:]
-  #filter out missing values
-  nonnan = np.where(~np.isnan(ymean))
-  xpoints = np.array(xpoints)[nonnan]
-  ymean = np.array(ymean)[nonnan]
-  return xpoints, ymean
-
-def profile_y(xbins, xvals, yvals):
-  return profile(xbins, xvals, yvals)
-
-def profile_x(ybins, yvals, xvals):
-  return profile(ybins, yvals, xvals)
- 
-def FWHM(bins, vals):
-  spline = UnivariateSpline(bins[:-1]+np.diff(bins)/2., vals-np.max(vals)/2., s=0)
-  roots = spline.roots() # find the roots
-  r1, r2 = roots[0], roots[-1]
-  return np.abs(r1-r2)
+startTime_wall      = time.time()
+startTime_processor = time.clock()
 
 filename_id = "seed%d_noise%d_signal%d_digitization%d" % (args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization)
 filename = "data/seed%d/leading_jets_%s.pkl" % (args.seedEt_thresh, filename_id)
-
 data = pickle.load(file(filename))
 
-offline_jet_Pt = {}
-trigger_jet_Et = {}
-trigger_jet_area = {}
-
-offline_jet_Pt['all'] = np.array([oJet.Pt for oJet in data['leading_offline_jet']])
-trigger_jet_Et['all'], trigger_jet_area['all'], trigger_jet_region, trigger_jet_eta = np.array([[tJet.Et, tJet.area, tJet.region(), tJet.eta] for tJet in data['matched_trigger_jet']]).T
-
-#we added subregions to the forward region
-sub_region_a = (1.6 < np.fabs(trigger_jet_eta))&(np.fabs(trigger_jet_eta) < 2.5)
-sub_region_b = (2.5 < np.fabs(trigger_jet_eta))&(np.fabs(trigger_jet_eta) < 3.2)
-sub_region_c = (3.2 < np.fabs(trigger_jet_eta))&(np.fabs(trigger_jet_eta) < 4.9)
-
-sub_region = {}
-sub_region['3a'] = np.where( sub_region_a&(trigger_jet_region == 3) )
-sub_region['3b'] = np.where( sub_region_b&(trigger_jet_region == 3) )
-sub_region['3c'] = np.where( sub_region_c&(trigger_jet_region == 3) )
-sub_region['4a'] = np.where( sub_region_a&(trigger_jet_region == 4) )
-sub_region['4b'] = np.where( sub_region_b&(trigger_jet_region == 4) )
-sub_region['4c'] = np.where( sub_region_c&(trigger_jet_region == 4) )
-
-trigger_jet_Et_correction = {}
-trigger_jet_Et_noPileup = {}
-numEvents = {}
-trigger_jet_exists = {}
-trigger_jet_exists_noPileup = {}
-# the new regions aren't working because there are not enough jets in them!!!
-regions = [1,2,3,4,'3a','3b','3c','4a','4b','4c']
-
-for i in regions:
-  try:
-    int(i)
-    region = np.where(trigger_jet_region == i)
-  except:
-    region = sub_region[i]
-
-  regionStr = 'region_%s' % i
-  offline_jet_Pt[regionStr] = offline_jet_Pt['all'][region]
-  trigger_jet_Et[regionStr] = trigger_jet_Et['all'][region]
-  trigger_jet_area[regionStr] = trigger_jet_area['all'][region]
-
-  #handle 3x and 4x
-  try:
-    ii = int(i)
-  except:
-    ii = int(i[0])
-
-  trigger_jet_Et_correction[regionStr] = trigger_jet_area[regionStr]*data['gFEX_rho_%d' % ii][region]
-  trigger_jet_Et_noPileup[regionStr] = trigger_jet_Et[regionStr] - trigger_jet_Et_correction[regionStr]
-  numEvents[regionStr] = offline_jet_Pt[regionStr].size
-  trigger_jet_exists[regionStr] = np.where(trigger_jet_Et[regionStr] > 0.)
-  trigger_jet_exists_noPileup[regionStr] = np.where(trigger_jet_Et_noPileup[regionStr] > 0.)
-
-del trigger_jet_region
-#del offline_jet_Pt['all']
-del trigger_jet_Et['all']
-del trigger_jet_area['all']
-
-bins_efficiency = np.arange(0.,2000.,10.)
-width_efficiency = np.array([x - bins_efficiency[i-1] for i,x in enumerate(bins_efficiency)][1:])
-bins_multiplicity = np.arange(0.0,50.0,1.0)
-
-bins_rho = np.arange(0.,100.,1.)
-bins_vertices = np.arange(0.,100.,1.)
-
-figsize = (16, 12)
-labelsize = 28
-titlesize = 36
-linewidth = 4
-light_grey = np.array([float(200)/float(255)]*3)
-filled=False
-cmap = pl.cm.hot
+endTime_wall      = time.time()
+endTime_processor = time.clock()
+print "Finished reading in data:\n\t Wall time: %0.2f s \n\t Clock Time: %0.2f s" % ( (endTime_wall - startTime_wall), (endTime_processor - startTime_processor))
 
 dataSetStr  = '$t\\bar{t}$\n$\sqrt{s}=14 \ \mathrm{TeV}\ \langle\mu\\rangle=80$'
 seedCutStr  = '$E_T^\mathrm{seed} >\ %d\ \mathrm{GeV}$' % args.seedEt_thresh
 noiseCutStr = '$E_T^\mathrm{tower} >\ %d\ \mathrm{GeV}$' % args.noise_filter
 towerThrStr = '$\\rho\left(E_T^\mathrm{tower} <\ %d\ \mathrm{GeV}\\right)$' % args.tower_thresh
 
-basicTextStr = {}
-for i in regions:
-  basicTextStr['region_%s' % i] = '%s\n%s\n%s\n%s' % (dataSetStr, seedCutStr, noiseCutStr, towerThrStr)
+helpers = PlotHelpers(dataSetStr=dataSetStr, seedCutStr=seedCutStr, noiseCutStr=noiseCutStr, towerThrStr=towerThrStr)
 
-basicTextStr['default'] = '%s\n%s\n%s\n%s' % (dataSetStr, seedCutStr, noiseCutStr, towerThrStr)
+tJetEt_correction = {}
+tJetEt_noPileup = {}
+# the new regions aren't working because there are not enough jets in them!!!
+regions = {1: '', 2: '', 3: '', 4: '', '3a': '', '3b': '', '3c': '', '4a': '', '4b': '', '4c': ''}
 
-textprops = dict(boxstyle='round', facecolor=light_grey, alpha=0.5, linewidth=0.0)
+for region in regions.keys():
+  region_cut = helpers.region_cut(data['tJet.eta'], region)
+  regions[region] = region_cut
 
-label_oRho = r'Offline $\rho$ [GeV/area]'
-label_gRho = r'gFEX $\rho$ [GeV/area]'
-label_nVer = r'Number of primary vertices (vxp_nTracks $\geq$ 2)'
+  if region not in [1,2,3,4]:
+    region_parsed = int(region[0])
+  else:
+    region_parsed = region
 
-region_legend = {'all': r'towers: $\eta \in (-4.9,4.9)$',\
-                1: r'towers: $\eta \in [-1.6,0.0)$',\
-                2: r'towers: $\eta \in [0.0,1.6)$',\
-                3: r'towers: $\eta \in (-4.9,-1.6)$',\
-                4: r'towers: $\eta \in [1.6,4.9)$',\
-                '3a': r'towers: $\eta \in (-2.5,-1.6)$',\
-                '3b': r'towers: $\eta \in (-3.2,-2.5)$',\
-                '3c': r'towers: $\eta \in (-4.9,-3.2)$',\
-                '4a': r'towers: $\eta \in (1.6,2.5)$',\
-                '4b': r'towers: $\eta \in (2.5,3.2)$',\
-                '4c': r'towers: $\eta \in (3.2,4.9)$'}
+  if region_parsed == 3:
+    rho = 'gFEX_rho_1'
+  elif region_parsed == 4:
+    rho = 'gFEX_rho_2'
+  else:
+    rho = 'gFEX_rho_{:d}'.format(region_parsed)
+
+  region_cut = np.where(region_cut)
+
+  tJetEt_correction[region] = data['tJet.area'][region_cut]*data[rho][region_cut]
+  tJetEt_noPileup[region] = data['tJet.et'][region_cut] - tJetEt_correction[region]
+
+bins_efficiency = np.arange(0.,2000.,10.)
+width_efficiency = np.array([x - bins_efficiency[i-1] for i,x in enumerate(bins_efficiency)][1:])
+bins_multiplicity = np.arange(0.0,100.0,2.0)
+
+bins_rho = np.arange(0.,100.,1.)
+bins_vertices = np.arange(0.,100.,1.)
 
 startTime_wall      = time.time()
 startTime_processor = time.clock()
 
-#multiplicity on gTowers
-fig = pl.figure(figsize=figsize)
-# b r c m y k
-where = np.where(offline_jet_Pt['all'] > 0.)
-pl.plot(bins_multiplicity[:-1], np.cumsum(np.sum(data['gTower_distribution'][where]).astype(float)[::-1])[::-1]/where[0].size, linestyle='steps-post', alpha=0.75, color='b', label='no cuts\n%d events' % where[0].size, linewidth=linewidth)
-where = np.where((offline_jet_Pt['all'] > 100.)&(offline_jet_Pt['all'] < 150.))
-pl.plot(bins_multiplicity[:-1], np.cumsum(np.sum(data['gTower_distribution'][where]).astype(float)[::-1])[::-1]/where[0].size, linestyle='steps-post', alpha=0.75, color='r', label='$100 < p_T^\mathrm{oJet} < 150$\n%d events' % where[0].size, linewidth=linewidth)
-where = np.where((offline_jet_Pt['all'] > 150.)&(offline_jet_Pt['all'] < 200.))
-pl.plot(bins_multiplicity[:-1], np.cumsum(np.sum(data['gTower_distribution'][where]).astype(float)[::-1])[::-1]/where[0].size, linestyle='steps-post', alpha=0.75, color='c', label='$150 < p_T^\mathrm{oJet} < 200$\n%d events' % where[0].size, linewidth=linewidth)
-where = np.where((offline_jet_Pt['all'] > 200.)&(offline_jet_Pt['all'] < 250.))
-pl.plot(bins_multiplicity[:-1], np.cumsum(np.sum(data['gTower_distribution'][where]).astype(float)[::-1])[::-1]/where[0].size, linestyle='steps-post', alpha=0.75, color='m', label='$200 < p_T^\mathrm{oJet} < 250$\n%d events' % where[0].size, linewidth=linewidth)
-legend = pl.legend(fancybox=True, framealpha=0.75, fontsize=labelsize)
-legend.get_frame().set_facecolor(light_grey)
-legend.get_frame().set_linewidth(0.0)
-pl.xlabel(r'$E_T^\mathrm{gTower}$ [GeV]', fontsize=labelsize)
-pl.ylabel('gTower multiplicity / event', fontsize=labelsize)
-pl.yscale('log', nonposy='clip')
-pl.text(0.05, 0.95, basicTextStr['default'], transform=fig.gca().transAxes, fontsize=labelsize, verticalalignment='top', horizontalalignment='left', bbox=textprops)
-pl.ylim((0.0, 1284.0))
-pl.grid(True, which='both', linewidth=3, linestyle='--', alpha=0.5)
-pl.tick_params(axis='both', which='major', labelsize=labelsize)
-fig.tight_layout()
-pl.savefig( write_file('plots/multiplicity/%s.png' % (filename_id)) )
-pl.close()
+try:
+  #multiplicity on gTowers
+  fig, ax = pl.subplots(figsize=helpers.figsize)
 
-#for col,legend in zip(['gFEX_rho_all','gFEX_rho_1','gFEX_rho_2','gFEX_rho_3','gFEX_rho_4'],['all',1,2,3,4]):
+  where = np.where( helpers.btwn(data['oJet.pt'], 0., None) )
+  ax.plot(bins_multiplicity[:-1], np.cumsum(np.sum(data['gTower_distribution'][where]).astype(float)[::-1])[::-1]/where[0].size,\
+            linestyle='steps-post',\
+            alpha=0.75,\
+            color=helpers.colors[0],\
+            label='no cuts\n{:d} events'.format(where[0].size),\
+            linewidth=helpers.linewidth)
+
+  where = np.where( helpers.btwn(data['oJet.pt'], 100., 150.) )
+  ax.plot(bins_multiplicity[:-1], np.cumsum(np.sum(data['gTower_distribution'][where]).astype(float)[::-1])[::-1]/where[0].size,\
+            linestyle='steps-post',\
+            alpha=0.75,\
+            color=helpers.colors[1],\
+            label='$100 < p_T^\mathrm{{oJet}} < 150$\n{:d} events'.format(where[0].size),\
+            linewidth=helpers.linewidth)
+
+  where = np.where( helpers.btwn(data['oJet.pt'], 150., 200.) )
+  ax.plot(bins_multiplicity[:-1], np.cumsum(np.sum(data['gTower_distribution'][where]).astype(float)[::-1])[::-1]/where[0].size,\
+            linestyle='steps-post',\
+            alpha=0.75,\
+            color=helpers.colors[2],\
+            label='$150 < p_T^\mathrm{{oJet}} < 200$\n{:d} events'.format(where[0].size),\
+            linewidth=helpers.linewidth)
+
+  where = np.where( helpers.btwn(data['oJet.pt'], 200., 250.) )
+  ax.plot(bins_multiplicity[:-1], np.cumsum(np.sum(data['gTower_distribution'][where]).astype(float)[::-1])[::-1]/where[0].size,\
+            linestyle='steps-post',\
+            alpha=0.75,\
+            color=helpers.colors[3],\
+            label='$200 < p_T^\mathrm{{oJet}} < 250$\n{:d} events'.format(where[0].size),\
+            linewidth=helpers.linewidth)
+
+  helpers.add_legend(fig, ax)
+  helpers.add_labels(fig, ax, xlabel='$E_T^\mathrm{gTower}$ [GeV]', ylabel='gTower multiplicity / event')
+  helpers.add_grid(fig, ax)
+  helpers.add_description(fig, ax, align='bl', strings=[helpers.dataSetStr])
+  ax.set_yscale('log', nonposy='clip')
+  ax.set_ylim((0.0, 1284.0))
+  helpers.to_file(fig, ax, 'plots/multiplicity/{}.png'.format(filename_id) )
+  pl.close(fig)
+except:
+  print "Could not make multiplicity plot"
+  pass
+
+###### START HERE ######
+
 for i in regions:
   region = 'region_%s' % i
 
@@ -622,7 +541,7 @@ for col,legend in zip(['gFEX_rho_all','gFEX_rho_1','gFEX_rho_2','gFEX_rho_3','gF
     #add atlas simulation
     #    internal
     pl.text(0.05, 0.95, 'ATLAS', fontsize=42, style='italic', fontweight='bold', verticalalignment='top', horizontalalignment='left', transform=fig.gca().transAxes)
-    pl.text(0.27, 0.95, 'Internal', verticalalignment='top', horizontalalignment='left', fontsize=40, transform=fig.gca().transAxes)
+    pl.text(0.27, 0.95, 'Preliminary', verticalalignment='top', horizontalalignment='left', fontsize=40, transform=fig.gca().transAxes)
     pl.text(0.05, 0.90, 'Simulation', verticalalignment='top', horizontalalignment='left', fontsize=40, transform=fig.gca().transAxes)
 
     pl.tick_params(axis='both', which='major', labelsize=labelsize)
