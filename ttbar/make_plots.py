@@ -47,8 +47,8 @@ towerThrStr = '$\\rho\left(E_T^\mathrm{tower} <\ %d\ \mathrm{GeV}\\right)$' % ar
 
 helpers = PlotHelpers(dataSetStr=dataSetStr, seedCutStr=seedCutStr, noiseCutStr=noiseCutStr, towerThrStr=towerThrStr)
 
-tJetEt_correction = {}
-tJetEt_noPileup = {}
+tJetEt_correction = np.zeros(data.size)
+tJetEt_subtracted = np.zeros(data.size)
 # the new regions aren't working because there are not enough jets in them!!!
 regions = {1: '', 2: '', 3: '', 4: '', '3a': '', '3b': '', '3c': '', '4a': '', '4b': '', '4c': ''}
 
@@ -70,8 +70,11 @@ for region in regions.keys():
 
   region_cut = np.where(region_cut)
 
-  tJetEt_correction[region] = data['tJet.area'][region_cut]*data[rho][region_cut]
-  tJetEt_noPileup[region] = data['tJet.et'][region_cut] - tJetEt_correction[region]
+  tJetEt_correction[region_cut] = data['tJet.area'][region_cut]*data[rho][region_cut]
+  tJetEt_subtracted[region_cut] = data['tJet.et'][region_cut] - tJetEt_correction[region_cut]
+
+tJet_exists = data['tJet.et'] > 0.
+tJet_exists_subtracted = tJetEt_subtracted > 0.
 
 bins_efficiency = np.arange(0.,2000.,10.)
 width_efficiency = np.array([x - bins_efficiency[i-1] for i,x in enumerate(bins_efficiency)][1:])
@@ -131,78 +134,64 @@ except:
   print "Could not make multiplicity plot"
   pass
 
-###### START HERE ######
-
-for i in regions:
+for i, cut in regions.iteritems():
   region = 'region_%s' % i
+  region_cut = np.where(cut)
 
   try:
-    #make a correlation of corrected Et versus trigger jet Et
-    corr = np.corrcoef(trigger_jet_Et[region], trigger_jet_Et_correction[region])[0,1]
-    fig = pl.figure(figsize=figsize)
-    counts, edges_x, edges_y, H = pl.hist2d(trigger_jet_Et[region], trigger_jet_Et_correction[region], bins=np.arange(0.,1500.,10.), norm=LogNorm(), alpha=0.75, cmap = cmap)
-    points_x, mean_y = profile_y(edges_x, trigger_jet_Et[region], trigger_jet_Et_correction[region])
-    cbar = pl.colorbar()
-    pl.scatter(points_x, mean_y, s=80, facecolor='w', edgecolor='k', marker='o', linewidth=2)
-    pl.text(0.95, 0.95, '%s\n$\mathrm{Corr} = %0.4f$' % (basicTextStr[region], corr), transform=fig.gca().transAxes, fontsize=labelsize, verticalalignment='top', horizontalalignment='right', bbox=textprops)
-    pl.xlabel(r'$E_T^{\mathrm{gJet}}$ [GeV]', fontsize=labelsize)
-    pl.ylabel(r'$\rho*A^\mathrm{gJet}$ [GeV]', fontsize=labelsize)
-    pl.xlim((0.,1000.))
-    pl.ylim((0.,200.))
-    cbar.set_label('number density', fontsize=labelsize)
-    #pl.xlim((0.0, 1000.0))
-    #pl.ylim((0.0, 1000.0))
-    pl.grid(True, which='both', linewidth=3, linestyle='--', alpha=0.5)
-    pl.tick_params(axis='both', which='major', labelsize=labelsize)
-    pl.savefig( write_file('plots/trigger_jet_Et_correction/%s_trigger_jet_Et_correction_region%s.png' % (filename_id, i)) )
-    pl.close()
+    # make a correlation of corrected Et versus trigger jet Et
+    x = data['tJet.et'][region_cut]
+    y = tJetEt_correction[region_cut]
+    bins_x = bins_y = np.arange(0., 1500., 10.)
+    xlim = (0., 1000.)
+    ylim = (0., 200.)
+    label_x = r'$E_T^{\mathrm{gJet}}$ [GeV]'
+    label_y = r'$\rho*A^\mathrm{gJet}$ [GeV]'
+
+    fig, ax = corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim, ylim, profile_y=True, align='tr',
+                     strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+
+    helpers.to_file(fig, ax, 'plots/trigger_jet_Et_correction/{}_trigger_jet_Et_correction_region{}.png'.format(filename_id, i))
+
+    pl.close(fig)
   except:
-    print "Error for %s: could not make correlation of corrected Et versus trigger jet Et" % region
-    pass
-  
-  try:
-    corr = np.corrcoef(offline_jet_Pt[region][trigger_jet_exists[region]], trigger_jet_Et[region][trigger_jet_exists[region]])[0,1]
-    fig = pl.figure(figsize=figsize)
-    counts, edges_x, edges_y, H = pl.hist2d(offline_jet_Pt[region][trigger_jet_exists[region]], trigger_jet_Et[region][trigger_jet_exists[region]], bins=np.arange(0.,1500.,10.), norm=LogNorm(), alpha=0.75, cmap = cmap)
-    points_x, mean_y = profile_y(edges_x, offline_jet_Pt[region][trigger_jet_exists[region]], trigger_jet_Et[region][trigger_jet_exists[region]])
-    pl.scatter(points_x, mean_y, s=80, facecolor='w', edgecolor='k', marker='o', linewidth=2)
-    cbar = pl.colorbar(H)
-    pl.text(0.95, 0.05, '%s\n$\mathrm{Corr} = %0.4f$' % (basicTextStr[region], corr), transform=fig.gca().transAxes, fontsize=labelsize, verticalalignment='bottom', horizontalalignment='right', bbox=textprops)
-    pl.xlabel(r'offline $p_T^{\mathrm{jet}}$ [GeV]', fontsize=labelsize)
-    pl.ylabel(r'trigger $E_T^{\mathrm{jet}}$ [GeV]', fontsize=labelsize)
-    pl.title('no subtraction', fontsize=titlesize)
-    cbar.set_label('number density', fontsize=labelsize)
-    pl.xlim((0.0, 1000.0))
-    pl.ylim((0.0, 1000.0))
-    pl.grid(True, which='both', linewidth=3, linestyle='--', alpha=0.5)
-    pl.tick_params(axis='both', which='major', labelsize=labelsize)
-    pl.savefig( write_file('plots/jet_energy_correlation/%s_region%s.png' % (filename_id, i)) )
-    pl.close()
-  except:
-    print "Error for %s: could not make jet energy correlation" % region
+    print "Error for {}: could not make correlation of corrected Et versus trigger jet Et".format(region)
     pass
 
   try:
-    corr = np.corrcoef(offline_jet_Pt[region][trigger_jet_exists_noPileup[region]], trigger_jet_Et_noPileup[region][trigger_jet_exists_noPileup[region]])[0,1]
-    fig = pl.figure(figsize=figsize)
-    counts, edges_x, edges_y, H = pl.hist2d(offline_jet_Pt[region][trigger_jet_exists_noPileup[region]], trigger_jet_Et_noPileup[region][trigger_jet_exists_noPileup[region]], bins=np.arange(0.,1500.,10.), norm=LogNorm(), alpha=0.75, cmap = cmap)
-    points_x, mean_y = profile_y(edges_x, offline_jet_Pt[region][trigger_jet_exists_noPileup[region]], trigger_jet_Et_noPileup[region][trigger_jet_exists_noPileup[region]])
-    pl.scatter(points_x, mean_y, s=80, facecolor='w', edgecolor='k', marker='o', linewidth=2)
-    cbar = pl.colorbar(H)
-    pl.text(0.95, 0.05, '%s\n$\mathrm{Corr} = %0.4f$' % (basicTextStr[region], corr), transform=fig.gca().transAxes, fontsize=labelsize, verticalalignment='bottom', horizontalalignment='right', bbox=textprops)
-    pl.xlabel(r'offline $p_T^{\mathrm{jet}}$ [GeV]', fontsize=labelsize)
-    pl.ylabel(r'trigger $E_T^{\mathrm{jet}}$ [GeV]', fontsize=labelsize)
-    pl.title('with subtraction', fontsize=titlesize)
-    cbar.set_label('number density', fontsize=labelsize)
-    pl.xlim((0.0, 1000.0))
-    pl.ylim((0.0, 1000.0))
-    pl.grid(True, which='both', linewidth=3, linestyle='--', alpha=0.5)
-    pl.tick_params(axis='both', which='major', labelsize=labelsize)
-    pl.savefig( write_file('plots/jet_energy_correlation/%s_noPileup_region%s.png' % (filename_id, i)) )
-    pl.close()
+    x = data['oJet.pt'][np.where(tJet_exists & cut)]
+    y = data['tJet.et'][np.where(tJet_exists & cut)]
+    bins_x = bins_y = np.arange(0., 1500., 10.)
+    xlim = ylim = (0., 1000.)
+    label_x = r'offline $p_T^{\mathrm{jet}}$ [GeV]'
+    label_y = r'trigger $E_T^{\mathrm{jet}}$ [GeV]'
+    fig, ax = corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim, ylim, profile_y=True, align='tr', title=r'no $\rho$ subtraction',
+                     strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+
+    helpers.to_file(fig, ax, 'plots/jet_energy_correlation/{}_region{}.png'.format(filename_id, i))
+
+    pl.close(fig)
   except:
-    print "Error for %s: could not make jet energy correlation (no Pileup)" % region
+    print "Error for {}: could not make jet energy correlation".format(region)
     pass
+
+  try:
+    x = data['oJet.pt'][np.where(tJet_exists_subtracted & cut)]
+    y = tJetEt_subtracted[np.where(tJet_exists_subtracted & cut)]
+    bins_x = bins_y = np.arange(0., 1500., 10.)
+    label_x = r'offline $p_T^{\mathrm{jet}}$ [GeV]'
+    label_y = r'trigger $E_T^{\mathrm{jet}}$ [GeV]'
+    xlim = ylim = (0., 1000.)
+    fig, ax = corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim, ylim, profile_y=True, align='br', title=r'with $\rho$ subtraction',
+                     strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+
+    helpers.to_file(fig, ax, 'plots/jet_energy_correlation/{}_noPileup_region{}.png'.format(filename_id, i))
+    pl.close(fig)
+  except:
+    print "Error for {}: could not make jet energy correlation (no Pileup)".format(region)
+    pass
+
+  # ###### START HERE #######
 
   #we want to make resolution plots now
   #   note that we ignore trigger jets that are negative or less than zero

@@ -98,7 +98,7 @@ class PlotHelpers(object):
 
   def profile_x(self, ybins, yvals, xvals):
     return self._profile(ybins, yvals, xvals)
-   
+
   def FWHM(self, bins, vals):
     spline = UnivariateSpline(bins[:-1]+np.diff(bins)/2., vals-np.max(vals)/2., s=0)
     roots = spline.roots() # find the roots
@@ -162,35 +162,42 @@ class PlotHelpers(object):
     ax.set_title(title, fontsize=self.titlesize)
     ax.tick_params(axis='both', which='major', labelsize=self.ticksize)
 
-  def format_cbar(self, cbar):
-    cbar.set_label('number density', fontsize=self.labelsize)
+  def format_cbar(self, cbar, label='number density'):
+    cbar.set_label(label, fontsize=self.labelsize, labelpad=40)
     cbar.ax.tick_params(labelsize=self.ticksize)
 
   def to_file(self, fig, ax, filename, transparent=True):
     fig.savefig( self.write_file(filename), bbox_inches='tight', transparent=transparent)
 
-  def corr2d(self, x, y, bins_x, bins_y, label_x, label_y, profile_x=False, profile_y=False):
-    corr = np.corrcoef(x, y)[0,1]
+  def corr2d(self, x, y, bins_x, bins_y, label_x, label_y, xlim, ylim, profile_x=False, profile_y=False, title=None, strings=[], align='bl', ticks=None):
+    corr = np.corrcoef(x, y)[0, 1]
     fig, ax = pl.subplots(figsize=self.figsize)
-    hist, _, _, im = ax.hist2d(x, y, norm=LogNorm(), bins=(bins_x, bins_y) , alpha=0.75, cmap = self.cmap)
+    counts, edges_x, edges_y, im = ax.hist2d(x, y, bins=(bins_x, bins_y), norm=LogNorm(), alpha=0.75, cmap = self.cmap)
 
-    cbar = fig.colorbar(im, ticks=np.logspace(0, np.log10(np.max(hist)), 10), format=self.label_formatter)
+    ticks = ticks or np.logspace(0, np.log10(np.max(counts)), 10)
+    cbar = fig.colorbar(im, ticks=ticks, format=self.label_formatter)
     self.format_cbar(cbar)
 
-    self.add_labels(fig, ax, label_x=label_x, label_y=label_y)
+    corrStr = '$\mathrm{{Corr}} = {:0.4f}f$'.format(corr)
+    self.add_description(fig, ax, align=align, strings=strings+[corrStr])
+
+    self.add_labels(fig, ax, xlabel=label_x, ylabel=label_y)
+    if title:
+      self.add_title(title)
+
+    if profile_y:
+      points_x, mean_y = profile_y(edges_x, x, y)
+      ax.scatter(points_x, mean_y, s=80, facecolor='w', edgecolor='k', marker='o', linewidth=2)
+    if profile_x:
+      points_y, mean_x = profile_x(edges_y, y, x)
+      ax.scatter(mean_x, points_y, s=80, facecolor='w', edgecolor='k', marker='o', linewidth=2)
 
     self.add_grid(fig, ax)
 
-    corrStr = '$\mathrm{{Corr}} = {:0.4f}f$'.format(corr)
-    self.add_description(fig, ax, align='br', strings=[self.dataSetStr, self.towerThrStr, corrStr])
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
 
-    self.add_atlas(fig, ax, level=1)
-
-    ax.tick_params(axis='both', which='major', labelsize=self.ticksize)
-    pl.savefig( self.write_file('ZH/%s_%s_correlation.png' % (filename_id, 'gFEX_rho_1')), bbox_inches='tight')
-    pl.savefig( self.write_file('ZH/%s_%s_correlation.eps' % (filename_id, 'gFEX_rho_1')), bbox_inches='tight')
-    pl.savefig( self.write_file('ZH/%s_%s_correlation.pdf' % (filename_id, 'gFEX_rho_1')), bbox_inches='tight')
-    pl.close()
+    return fig, ax
 
   def add_turnon(self, fig, ax, den, num, label):
     pass
