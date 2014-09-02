@@ -169,7 +169,7 @@ class PlotHelpers(object):
   def to_file(self, fig, ax, filename, transparent=True):
     fig.savefig( self.write_file(filename), bbox_inches='tight', transparent=transparent)
 
-  def corr2d(self, x, y, bins_x, bins_y, label_x, label_y, xlim, ylim, profile_x=False, profile_y=False, title=None, strings=[], align='bl', ticks=None):
+  def corr2d(self, x, y, bins_x, bins_y, label_x, label_y, xlim=None, ylim=None, profile_x=False, profile_y=False, title=None, strings=[], align='bl', ticks=None):
     corr = np.corrcoef(x, y)[0, 1]
     fig, ax = pl.subplots(figsize=self.figsize)
     counts, edges_x, edges_y, im = ax.hist2d(x, y, bins=(bins_x, bins_y), norm=LogNorm(), alpha=0.75, cmap = self.cmap)
@@ -194,11 +194,57 @@ class PlotHelpers(object):
 
     self.add_grid(fig, ax)
 
-    ax.set_xlim(xlim)
-    ax.set_ylim(ylim)
+    if xlim is not None:
+      ax.set_xlim(xlim)
+    if ylim is not None:
+      ax.set_ylim(ylim)
 
     return fig, ax
 
-  def add_turnon(self, fig, ax, den, num, label):
-    pass
+  def add_turnon(self, fig, ax, data=None, den_cut=None, num_cut=None, label=None, bins=np.arange(0.0, 1000.0, 10.0), kind='differential', p0=(0., 0., 0., 0.)):
 
+    # *_noPileup means the data with the pileup subtracted
+    hist_efficiency_den, _          = np.histogram(data[np.where(den_cut)], bins=bins)
+    hist_efficiency_num, _          = np.histogram(data[np.where(num_cut)], bins=bins)
+
+    nonzero_bins = np.where(hist_efficiency_den != 0)
+    # compute integral and differential curves
+    if kind == 'differential':
+      denominator = hist_efficiency_den[nonzero_bins]
+      numerator   = hist_efficiency_num[nonzero_bins]
+    else:
+      denominator = np.cumsum(hist_efficiency_den[nonzero_bins][::-1])[::-1]
+      numerator   = np.cumsum(hist_efficiency_num[nonzero_bins][::-1])[::-1]
+
+    hist_eff_curve = np.true_divide(numerator, denominator)
+
+    # halfway between bins is where we plot
+    width_efficiency = np.array([x - bins[i-1] for i, x in enumerate(bins)][1:])
+    xpoints_efficiency = bins[:-1] + width_efficiency/2.
+
+    # binomial errors s^2 = n * p * q
+    errors_eff = self.binomial_errors(hist_eff_curve, numerator, denominator)
+
+    def fit_func(x, y):
+      try:
+        # define erfx used for error fitting
+        def func(x, a, b, c, d):
+          # note that b == sigma here, see wiki for more info
+          return a*erf((x-c)/b) + d
+        popt, pcov = curve_fit(func, x, y, p0=p0)
+      except RuntimeError:
+        return -1.
+      return popt  # return (a,b,c,d); width = b
+
+    def peak_point(w):
+      return w[1]*erfinv((0.95-w[3])/w[0])+w[2]
+
+    def make_label(w):
+      if np.all(w == -1) or ~np.isfinite(peak_point(w)):
+        return ''
+      else:
+        return '$w = {0:0.1f},\ x_{{0.95}} = {1:0.1f}$'.format(w[1], peak_point(w))
+
+    w = fit_func(xpoints_efficiency[nonzero_bins], hist_eff_curve)
+    ax.errorbar(xpoints_efficiency[nonzero_bins], hist_eff_curve, yerr=errors_eff, ecolor='black', label='{}\n{}'.format(label, make_label(w)), linewidth=self.linewidth)
+    return xpoints_efficiency, hist_eff_curve, errors_eff, nonzero_bins, w
