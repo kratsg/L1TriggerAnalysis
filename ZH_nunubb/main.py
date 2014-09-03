@@ -87,6 +87,7 @@ seed_filter = gTowers.SeedFilter( et = args.seedEt_thresh, n = 100 )
 # for offline rho and vxp_n
 rho_column_name     = 'Eventshape_rhoKt4LC'
 vertices_column_name = 'vxp_nTracks'
+weight_column_name = 'weight'
 
 #offline and trigger jet column names to pull from the file, must be in this order to sync with the predefined classes in atlas_jets package
 offline_column_names = ['jet_AntiKt10LCTopoTrimmedPtFrac5SmallR30_%s' % col for col in ['pt', 'm', 'eta', 'phi', 'TrimmedSubjetsPtFrac5SmallR30_nsj', 'Tau1', 'Tau2', 'Tau3', 'SPLIT12', 'SPLIT23', 'SPLIT34', 'TrimmedSubjetsPtFrac5SmallR30_index']] + ['jet_AntiKt10LCTopoTrimmedSubjetsPtFrac5SmallR30_pt']
@@ -105,11 +106,20 @@ datatype = [('offline_rho', 'float32'),\
               ('gFEX_rho_3','float32'),\
               ('gFEX_rho_4','float32'),\
               ('vxp_n', 'int32'),\
-              ('gTower_distribution','object')]
+              ('gTower_distribution','object'),\
+              ('weight','float32')]
+
+dataLoadTimes = []
+rowEvalTimes = []
+rhoCalcTimes = []
 
 for event_num in xrange(args.event_start, args.event_start+args.num_events, args.step_size):
-  data = rnp.tree2rec(t, branches=[rho_column_name] + [vertices_column_name] + offline_column_names + gTower_column_names, start=(event_num), stop=(event_num+args.step_size))
+  t1 = time.time()
+  data = rnp.tree2rec(t, branches=[rho_column_name] + [vertices_column_name] + [weight_column_name] + offline_column_names + gTower_column_names, start=(event_num), stop=(event_num+args.step_size))
+  dataLoadTimes.append(time.time() - t1)
+
   for row in data:
+    t2 = time.time()
     #revive the record array
     event = np.array(row)
     # jetPt, jetM, jetEta, jetPhi, nsj, tau1, tau2, tau3, split12, split23, split34, subjetsIndex, subjetsPt = event
@@ -142,14 +152,22 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
     # now do offline rho and num vertices
     offline_rho = event[rho_column_name].item()/1000. #it's an array of one element, so just return the element
     num_vertices = np.sum(event[vertices_column_name].tolist() >= 2)
+    event_weight = event[weight_column_name].item() or 1 #it's an array of one element, so just return the element (if it's 0 or 0.0, return 1.0)
 
+    del event # extracted all necessary data from it
+
+    t3 = time.time()
     tEvent = gTowers.TowerEvent(event=gTowerData, seed_filter = seed_filter)
+
+    del gTowerData # converted that information into tEvent
+
     gFEX_rho_holder = {1: [], 2: [], 3: [], 4: []}
     for tower in tEvent.towers_below(args.tower_thresh):
       gFEX_rho_holder[tower.region].append(tower.rho)
     gFEX_rho = {'all': np.mean(list(chain(*gFEX_rho_holder.values()))), 1: -1., 2: -1., 3: -1., 4: -1.}
     for region in [1,2,3,4]:
       gFEX_rho[region] = np.mean(gFEX_rho_holder[region])
+    rhoCalcTimes.append(time.time() - t3)
 
     towers = tEvent.towers_above(args.noise_filter)
     tEvent.get_event(towers=towers)
@@ -169,13 +187,16 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
                                  gFEX_rho[3],\
                                  gFEX_rho[4],\
                                  num_vertices,\
-                                 hist_gTowerMult)\
+                                 hist_gTowerMult,\
+                                 event_weight)\
                            ], dtype=(leading_oJet.as_rec.dtype.descr + matched_tJet.as_rec.dtype.descr + datatype) )
 
     if paired_jets.size > 0:
       paired_jets = np.append(event_data, paired_jets)
     else:
       paired_jets = event_data
+
+    rowEvalTimes.append(time.time() - t2)
 
 endTime_wall      = time.time()
 endTime_processor = time.clock()
@@ -185,3 +206,6 @@ print "Finished job %d in:\n\t Wall time: %0.2f s \n\t Clock Time: %0.2f s" % (a
 filename_ending = 'unweighted_seed%d_noise%d_signal%d_digitization%d_process%d' % (args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization, args.process_num)
 pickle.dump(paired_jets, file( write_file('data/seed%d/matched_jets_%s.pkl' % (args.seedEt_thresh, filename_ending) ), 'w+') )
 print len(paired_jets)
+print "dataLoadTimes", np.mean(dataLoadTimes), np.std(dataLoadTimes)
+print "rowEvalTimes", np.mean(rowEvalTimes), np.std(rowEvalTimes)
+print "rhoCalcTimes", np.mean(rhoCalcTimes), np.std(rhoCalcTimes)

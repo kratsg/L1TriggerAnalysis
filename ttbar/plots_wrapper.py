@@ -83,15 +83,16 @@ class PlotHelpers(object):
     # this finds the difference between successive bins and then halves it, and
     #     then adds it back to the bins to get xpoints
     # gets the average yvalue for each of the xbins
-    xpoints = xbins[:-1] + np.array([v-xbins[i-1] for i,v in enumerate(xbins)][1:])/2.
+    xpoints = xbins[:-1] + np.array([v-xbins[i-1] for i, v in enumerate(xbins)][1:])/2.
     # this digitizes our samples by figuring out which xbin each xval belongs to
     digitized = np.digitize(xvals, xbins)
-    ymean = [np.mean(yvals[np.where(digitized == i)]) for i in np.arange(1,len(xbins)+1)][1:]
-    #filter out missing values
+    ymean = [np.mean(yvals[np.where(digitized == i)]) for i in np.arange(1, len(xbins)+1)][1:]
+    yerr  = [np.std(yvals[np.where(digitized == i)]) for i in np.arange(1, len(xbins)+1)][1:]
+    # filter out missing values
     nonnan = np.where(~np.isnan(ymean))
     xpoints = np.array(xpoints)[nonnan]
     ymean = np.array(ymean)[nonnan]
-    return xpoints, ymean
+    return xpoints, ymean, yerr
 
   def profile_y(self, xbins, xvals, yvals):
     return self._profile(xbins, xvals, yvals)
@@ -156,10 +157,13 @@ class PlotHelpers(object):
   def add_grid(self, fig, ax):
     ax.grid(True, which='both', linewidth=3, linestyle='--', alpha=0.5)
 
-  def add_labels(self, fig, ax, xlabel = '', ylabel = '', title = ''):
-    ax.set_xlabel(xlabel, fontsize=self.labelsize)
-    ax.set_ylabel(ylabel, fontsize=self.labelsize)
-    ax.set_title(title, fontsize=self.titlesize)
+  def add_labels(self, fig, ax, xlabel = None, ylabel = None, title = None):
+    if xlabel is not None:
+      ax.set_xlabel(xlabel, fontsize=self.labelsize)
+    if ylabel is not None:
+      ax.set_ylabel(ylabel, fontsize=self.labelsize)
+    if title is not None:
+      ax.set_title(title, fontsize=self.titlesize)
     ax.tick_params(axis='both', which='major', labelsize=self.ticksize)
 
   def format_cbar(self, cbar, label='number density'):
@@ -178,18 +182,16 @@ class PlotHelpers(object):
     cbar = fig.colorbar(im, ticks=ticks, format=self.label_formatter)
     self.format_cbar(cbar)
 
-    corrStr = '$\mathrm{{Corr}} = {:0.4f}f$'.format(corr)
+    corrStr = '$\mathrm{{Corr}} = {:0.4f}$'.format(corr)
     self.add_description(fig, ax, align=align, strings=strings+[corrStr])
 
-    self.add_labels(fig, ax, xlabel=label_x, ylabel=label_y)
-    if title:
-      self.add_title(title)
+    self.add_labels(fig, ax, xlabel=label_x, ylabel=label_y, title=title)
 
     if profile_y:
-      points_x, mean_y = profile_y(edges_x, x, y)
+      points_x, mean_y, err_y = self.profile_y(edges_x, x, y)
       ax.scatter(points_x, mean_y, s=80, facecolor='w', edgecolor='k', marker='o', linewidth=2)
     if profile_x:
-      points_y, mean_x = profile_x(edges_y, y, x)
+      points_y, mean_x, err_x = self.profile_x(edges_y, y, x)
       ax.scatter(mean_x, points_y, s=80, facecolor='w', edgecolor='k', marker='o', linewidth=2)
 
     self.add_grid(fig, ax)
@@ -204,8 +206,8 @@ class PlotHelpers(object):
   def add_turnon(self, fig, ax, data=None, den_cut=None, num_cut=None, label=None, bins=np.arange(0.0, 1000.0, 10.0), kind='differential', p0=(0., 0., 0., 0.)):
 
     # *_noPileup means the data with the pileup subtracted
-    hist_efficiency_den, _          = np.histogram(data[np.where(den_cut)], bins=bins)
-    hist_efficiency_num, _          = np.histogram(data[np.where(num_cut)], bins=bins)
+    hist_efficiency_den, _ = np.histogram(data[np.where(den_cut)], bins=bins)
+    hist_efficiency_num, _ = np.histogram(data[np.where(den_cut&num_cut)], bins=bins)
 
     nonzero_bins = np.where(hist_efficiency_den != 0)
     # compute integral and differential curves
@@ -225,26 +227,27 @@ class PlotHelpers(object):
     # binomial errors s^2 = n * p * q
     errors_eff = self.binomial_errors(hist_eff_curve, numerator, denominator)
 
-    def fit_func(x, y):
-      try:
-        # define erfx used for error fitting
-        def func(x, a, b, c, d):
-          # note that b == sigma here, see wiki for more info
-          return a*erf((x-c)/b) + d
-        popt, pcov = curve_fit(func, x, y, p0=p0)
-      except RuntimeError:
-        return -1.
-      return popt  # return (a,b,c,d); width = b
-
-    def peak_point(w):
-      return w[1]*erfinv((0.95-w[3])/w[0])+w[2]
-
-    def make_label(w):
-      if np.all(w == -1) or ~np.isfinite(peak_point(w)):
-        return ''
-      else:
-        return '$w = {0:0.1f},\ x_{{0.95}} = {1:0.1f}$'.format(w[1], peak_point(w))
-
-    w = fit_func(xpoints_efficiency[nonzero_bins], hist_eff_curve)
-    ax.errorbar(xpoints_efficiency[nonzero_bins], hist_eff_curve, yerr=errors_eff, ecolor='black', label='{}\n{}'.format(label, make_label(w)), linewidth=self.linewidth)
+    w = self.fit_func(xpoints_efficiency[nonzero_bins], hist_eff_curve, p0=p0)
+    ax.errorbar(xpoints_efficiency[nonzero_bins], hist_eff_curve, yerr=errors_eff, ecolor='black', label='{}\n{}'.format(label, self.make_turnon_label(w)), linewidth=self.linewidth)
     return xpoints_efficiency, hist_eff_curve, errors_eff, nonzero_bins, w
+
+  def erf_func(self, x, a, b, c, d):
+    # note that b == sigma here, see wiki for more info
+    return a*erf((x-c)/b) + d
+
+  def fit_func(self, x, y, p0=(0., 0., 0., 0.)):
+    try:
+      # define erfx used for error fitting
+      popt, pcov = curve_fit(self.erf_func, x, y, p0=p0)
+    except RuntimeError:
+      return -1.
+    return popt  # return (a,b,c,d); width = b
+
+  def peak_point(self, w):
+    return w[1]*erfinv((0.95-w[3])/w[0])+w[2]
+
+  def make_turnon_label(self, w):
+    if np.all(w == -1) or ~np.isfinite(self.peak_point(w)):
+      return ''
+    else:
+      return '$w = {0:0.1f},\ x_{{0.95}} = {1:0.1f}$'.format(w[1], self.peak_point(w))

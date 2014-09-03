@@ -34,7 +34,7 @@ configStart = <<-eos
 # This file was dynamically generated from make_config.rb
 Universe = vanilla 
 Executable = main.sh
-#Requirements = (OpSysAndVer =?= "SL6") && ( IS_RCC_mwt2 )
+#Requirements = (OpSysAndVer =?= "SL6") && ( IS_RCC_uchicago )
 Requirements = (OpSysAndVer =?= "SL6") && ( IS_RCC_fresnostate =!= True )
 Error = out/error.$(Cluster)-$(Process)
 Output = out/output.$(Cluster)-$(Process)
@@ -49,7 +49,7 @@ eos
 
 start = 0
 stop = 9600
-step = 1920
+step = 480
 
 numJobs = 0
 

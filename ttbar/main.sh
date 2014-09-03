@@ -17,7 +17,7 @@ printf "Job is running in directory: "; /bin/pwd
 
 # You would normally change the --seedEt, --towerThresh, --noiseFilter, --digitization to suit your needs. Digitization is in MeV, 0 == no digitization.
 
-python main.py --processNum ${1} --file ${2} --start ${3} --numEvents ${4} --stepSize 100 --seedEt=15 --towerThresh=6 --noiseFilter=0 --digitization=0
+python main.py --processNum ${1} --file ${2} --start ${3} --numEvents ${4} --stepSize 100 --seedEt=15 --towerThresh=6 --noiseFilter=0 --digitization=256
 
 # Can run other scripts after processing with one set of configs
 

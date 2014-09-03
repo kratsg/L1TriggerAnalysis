@@ -1,17 +1,15 @@
-from atlas_jets import *
-from plots_wrapper import *
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as pl
-from matplotlib.colors import LogNorm
 import argparse
 import time
 
+from plots_wrapper import PlotHelpers
+import plot_configs as plotConfigs
+
 # for getting FWHM
 from scipy.interpolate import interp1d
-
-# for getting error function fitting in diff/int curves
-from scipy.optimize import curve_fit
-from scipy.special import erf, erfinv
 
 try:
   import cPickle as pickle
@@ -30,15 +28,15 @@ args = parser.parse_args()
 startTime_wall      = time.time()
 startTime_processor = time.clock()
 
-filename_id = "seed%d_noise%d_signal%d_digitization%d" % (args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization)
-filename = "data/seed%d/leading_jets_%s.pkl" % (args.seedEt_thresh, filename_id)
+filename_id = "seed{:0.0f}_noise{:0.0f}_signal{:0.0f}_digitization{:0.0f}".format(args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization)
+filename = "data/seed{:0.0f}/leading_jets_{}.pkl".format(args.seedEt_thresh, filename_id)
 data = pickle.load(file(filename))
 
 endTime_wall      = time.time()
 endTime_processor = time.clock()
 print "Finished reading in data:\n\t Wall time: %0.2f s \n\t Clock Time: %0.2f s" % ((endTime_wall - startTime_wall), (endTime_processor - startTime_processor))
 
-dataSetStr  = '$t\\bar{t}$\n$\sqrt{s}=14 \ \mathrm{TeV}\ \langle\mu\\rangle=80$'
+dataSetStr  = plotConfigs.dataSetStr
 seedCutStr  = '$E_T^\mathrm{seed} >\ %d\ \mathrm{GeV}$' % args.seedEt_thresh
 noiseCutStr = '$E_T^\mathrm{tower} >\ %d\ \mathrm{GeV}$' % args.noise_filter
 towerThrStr = '$\\rho\left(E_T^\mathrm{tower} <\ %d\ \mathrm{GeV}\\right)$' % args.tower_thresh
@@ -85,6 +83,7 @@ startTime_wall = time.time()
 startTime_processor = time.clock()
 
 try:
+  print "\t", "gTower multiplicity"
   # multiplicity on gTowers
   fig, ax = pl.subplots(figsize=helpers.figsize)
 
@@ -134,13 +133,19 @@ try:
   pl.close(fig)
 except:
   print "Could not make multiplicity plot"
+  pl.close(fig)
   pass
+
+# this will be used to make resolution plots below line 200
+resolution = (data['tJet.et']/data['oJet.pt']) - 1.0
+resolution_subtracted = (tJetEt_subtracted/data['oJet.pt']) - 1.0
 
 for i, cut in regions.iteritems():
   region = 'region_%s' % i
   region_cut = np.where(cut)
 
   try:
+    print "\t", "corrected Et versus tJetEt"
     # make a correlation of corrected Et versus trigger jet Et
     x = data['tJet.et'][region_cut]
     y = tJetEt_correction[region_cut]
@@ -150,100 +155,105 @@ for i, cut in regions.iteritems():
     label_x = r'$E_T^{\mathrm{gJet}}$ [GeV]'
     label_y = r'$\rho*A^\mathrm{gJet}$ [GeV]'
 
-    fig, ax = corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, ylim=ylim, profile_y=True, align='tr',
-                     strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+    fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, ylim=ylim, profile_y=True, align='tr',
+                             strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
 
     helpers.to_file(fig, ax, 'plots/trigger_jet_Et_correction/{}_trigger_jet_Et_correction_region{}.png'.format(filename_id, i))
 
     pl.close(fig)
   except:
     print "Error for {}: could not make correlation of corrected Et versus trigger jet Et".format(region)
+    pl.close(fig)
     pass
 
   try:
+    print "\t", "oJetPt versus tJetEt"
     x = data['oJet.pt'][np.where(tJet_exists & cut)]
     y = data['tJet.et'][np.where(tJet_exists & cut)]
     bins_x = bins_y = np.arange(0., 1500., 10.)
     xlim = ylim = (0., 1000.)
     label_x = r'offline $p_T^{\mathrm{jet}}$ [GeV]'
     label_y = r'trigger $E_T^{\mathrm{jet}}$ [GeV]'
-    fig, ax = corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, ylim=ylim, profile_y=True, align='tr', title=r'no $\rho$ subtraction',
-                     strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+    fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, ylim=ylim, profile_y=True, align='tr', title=r'no $\rho$ subtraction',
+                             strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
 
     helpers.to_file(fig, ax, 'plots/jet_energy_correlation/{}_region{}.png'.format(filename_id, i))
 
     pl.close(fig)
   except:
     print "Error for {}: could not make jet energy correlation".format(region)
+    pl.close(fig)
     pass
 
   try:
+    print "\t", "oJetPt versus corrected tJetEt"
     x = data['oJet.pt'][np.where(tJet_exists_subtracted & cut)]
     y = tJetEt_subtracted[np.where(tJet_exists_subtracted & cut)]
     bins_x = bins_y = np.arange(0., 1500., 10.)
     label_x = r'offline $p_T^{\mathrm{jet}}$ [GeV]'
     label_y = r'trigger $E_T^{\mathrm{jet}}$ [GeV]'
     xlim = ylim = (0., 1000.)
-    fig, ax = corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, ylim=ylim, profile_y=True, align='br', title=r'with $\rho$ subtraction',
-                     strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+    fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, ylim=ylim, profile_y=True, align='br', title=r'with $\rho$ subtraction',
+                             strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
 
     helpers.to_file(fig, ax, 'plots/jet_energy_correlation/{}_noPileup_region{}.png'.format(filename_id, i))
     pl.close(fig)
   except:
     print "Error for {}: could not make jet energy correlation (no Pileup)".format(region)
+    pl.close(fig)
     pass
 
   # we want to make resolution plots now
   # note that we ignore trigger jets that are negative or less than zero
-  resolution = (data['tJet.et'][np.where(cut)]/data['oJet.pt'][np.where(cut)]) - 1.0
-  resolution_subtracted = (tJetEt_subtracted[np.where(cut)]/data['oJet.pt'][np.where(cut)]) - 1.0
-  # eta = np.array([oJet.eta for oJet in data['leading_offline_jet']])
-  # rho = data['offline_rho']
-  # vxp_n = data['vxp_n']
 
   try:
+    print "\t", "oJetPt versus resolution"
     x = data['oJet.pt'][np.where(tJet_exists_subtracted & cut)]
     y = resolution[np.where(tJet_exists_subtracted & cut)]
     bins_x = bins_y = 100
     label_x = r'offline $p_T^{\mathrm{jet}}$ [GeV]'
     label_y = r'resolution $\frac{E_T^\mathrm{gFEX} - p_T^\mathrm{offline}}{p_T^\mathrm{offline}}$'
     xlim = (0., 1000.)
-    fig, ax = corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, profile_y=True, align='tr', title=r'no $\rho$ subtraction',
-                     strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+    fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, profile_y=True, align='tr', title=r'no $\rho$ subtraction',
+                             strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
 
     helpers.to_file(fig, ax, 'plots/resolution/{}_resolution_PtOffline_region{}.png'.format(filename_id, i))
     pl.close(fig)
   except:
     print "Error for {}: could not make resolution correlation".format(region)
+    pl.close(fig)
     pass
 
   try:
+    print "\t", "oJetPt versus corrected resolution"
     x = data['oJet.pt'][np.where(tJet_exists_subtracted & cut)]
     y = resolution_subtracted[np.where(tJet_exists_subtracted & cut)]
     bins_x = bins_y = 100
     label_x = r'offline $p_T^{\mathrm{jet}}$ [GeV]'
     label_y = r'resolution $\frac{E_T^\mathrm{gFEX} - p_T^\mathrm{offline}}{p_T^\mathrm{offline}}$'
     xlim = (0., 1000.)
-    fig, ax = corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, profile_y=True, align='tr', title=r'with $\rho$ subtraction',
-                     strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+    fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, profile_y=True, align='tr', title=r'with $\rho$ subtraction',
+                             strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
 
     helpers.to_file(fig, ax, 'plots/resolution/{}_resolution_PtOffline_withRhoSubtraction_region{}.png'.format(filename_id, i))
     pl.close(fig)
   except:
     print "Error for {}: could not make resolution correlation (with Rho subtraction)".format(region)
+    pl.close(fig)
     pass
 
   try:
+    print "\t", "y-projection slices of resolution"
     # y projection slices
     pl_res_proj = {}
-    fig, ax = pl.subplots(figsize=self.figsize)
+    fig, ax = pl.subplots(figsize=helpers.figsize)
     for oJetPt_cuts in [(170., 180.), (200., 220.), (300., 350.)]:
       oJetPt_cut = helpers.btwn(data['oJet.pt'], oJetPt_cuts[0], oJetPt_cuts[1])
       hist, bins = np.histogram(resolution[np.where(cut & oJetPt_cut & tJet_exists_subtracted)], bins=100, density=True)
-      fwhm = FWHM(bins, hist)
-      ax.plot(bins[:-1], hist, linestyle='steps-post', alpha=0.75, color='b', label=r'${:d}\ \mathrm{{GeV}} < p_T^\mathrm{{oJet}} <\ {:d}\ \mathrm{{GeV}}$\nFWHM = {:0.4f}'.format(oJetPt_cuts[0], oJetPt_cuts[1], fwhm), linewidth=helpers.linewidth)
+      fwhm = helpers.FWHM(bins, hist)
+      ax.plot(bins[:-1], hist, linestyle='steps-post', alpha=0.75, color='b', label=r'${:0.0f}\ \mathrm{{GeV}} < p_T^\mathrm{{oJet}} <\ {:0.0f}\ \mathrm{{GeV}}$\nFWHM = {:0.4f}'.format(oJetPt_cuts[0], oJetPt_cuts[1], fwhm), linewidth=helpers.linewidth)
 
-      pl_res_proj['{:d}to{:d}'.format(oJetPt_cuts[0], oJetPt_cuts[1])] = resolution[np.where(cut & oJetPt_cut & tJet_exists_subtracted)]
+      pl_res_proj['{:0.0f}to{:0.0f}'.format(oJetPt_cuts[0], oJetPt_cuts[1])] = resolution[np.where(cut & oJetPt_cut & tJet_exists_subtracted)]
 
     helpers.add_legend(fig, ax)
     helpers.add_labels(fig, ax, xlabel=r'resolution $\frac{E_T^\mathrm{gFEX} - p_T^\mathrm{offline}}{p_T^\mathrm{offline}}$', ylabel='normalized counts', title='Y-Axis Projections of Resolution')
@@ -254,19 +264,21 @@ for i, cut in regions.iteritems():
     helpers.to_file(fig, ax, 'plots/resolution/{}_resolution_PtOffline_projection_region{}.png'.format(filename_id, i))
     pl.close(fig)
   except:
-    print "Error for {}: could not resolution projection".format(region)
+    print "Error for {}: could not make resolution projection".format(region)
+    pl.close(fig)
     pass
 
   try:
+    print "\t", "y-projection slices of corrected resolution"
     pl_res_proj = {}
-    fig, ax = pl.subplots(figsize=self.figsize)
+    fig, ax = pl.subplots(figsize=helpers.figsize)
     for oJetPt_cuts in [(170., 180.), (200., 220.), (300., 350.)]:
       oJetPt_cut = helpers.btwn(data['oJet.pt'], oJetPt_cuts[0], oJetPt_cuts[1])
       hist, bins = np.histogram(resolution_subtracted[np.where(cut & oJetPt_cut & tJet_exists_subtracted)], bins=100, density=True)
-      fwhm = FWHM(bins, hist)
-      ax.plot(bins[:-1], hist, linestyle='steps-post', alpha=0.75, color='b', label=r'${:d}\ \mathrm{{GeV}} < p_T^\mathrm{{oJet}} <\ {:d}\ \mathrm{{GeV}}$\nFWHM = {:0.4f}'.format(oJetPt_cuts[0], oJetPt_cuts[1], fwhm), linewidth=helpers.linewidth)
+      fwhm = helpers.FWHM(bins, hist)
+      ax.plot(bins[:-1], hist, linestyle='steps-post', alpha=0.75, color='b', label=r'${:0.0f}\ \mathrm{{GeV}} < p_T^\mathrm{{oJet}} <\ {:0.0f}\ \mathrm{{GeV}}$\nFWHM = {:0.4f}'.format(oJetPt_cuts[0], oJetPt_cuts[1], fwhm), linewidth=helpers.linewidth)
 
-      pl_res_proj['{:d}to{:d}'.format(oJetPt_cuts[0], oJetPt_cuts[1])] = resolution_subtracted[np.where(cut & oJetPt_cut & tJet_exists_subtracted)]
+      pl_res_proj['{:0.0f}to{:0.0f}'.format(oJetPt_cuts[0], oJetPt_cuts[1])] = resolution_subtracted[np.where(cut & oJetPt_cut & tJet_exists_subtracted)]
 
     helpers.add_legend(fig, ax)
     helpers.add_labels(fig, ax, xlabel=r'resolution $\frac{E_T^\mathrm{gFEX} - p_T^\mathrm{offline}}{p_T^\mathrm{offline}}$', ylabel='normalized counts', title=r'Y-Axis Projections of Resolution, with $\rho$ subtraction')
@@ -278,21 +290,19 @@ for i, cut in regions.iteritems():
     pl.close(fig)
   except:
     print "Error for {}: could not make resolution projection (no Pileup)".format(region)
+    pl.close(fig)
     pass
 
-  # ###### START HERE ######
-
-  points_x, mean_y = helpers.profile_y(np.arange(0., 1500., 10.), data['tJet.et'][np.where(cut)], tJetEt_correction[np.where(cut)])
+  points_x, mean_y, err_y = helpers.profile_y(np.arange(0., 1500., 10.), data['tJet.et'][np.where(cut)], tJetEt_correction[np.where(cut)])
   f = interp1d(points_x, mean_y, bounds_error=False, fill_value=0., kind='cubic')
   print region
 
   for tJetEt_cut in [0., 140.]:
-    print "\t", tJetEt_cut
     # ADD IN np.interp(tJetEt_cut, trigger_Et, rho*A) and shift subtracted eff curves
     eff_curve_shift = f([tJetEt_cut])[0]
-    print "\t", eff_curve_shift
+    print "\t tJetEt_cut = {}, eff_curve_shift = {}".format(tJetEt_cut, eff_curve_shift)
     # eff_curve_shift = np.interp(tJetEt_cut, trigger_jet_Et[region], trigger_jet_Et_correction[region])
-    tJetEtThrStr = r'$E_T^\mathrm{{gFEX\ jet}} >\ {:0.2f}\ \mathrm"{GeV}}$'.format(tJetEt_cut)
+    tJetEtThrStr = r'$E_T^\mathrm{{gFEX\ jet}} >\ {:0.2f}\ \mathrm{{GeV}}$'.format(tJetEt_cut)
 
     pl_eff_diff = {'eff_curve_shift': eff_curve_shift}
     fig, ax = pl.subplots(figsize=helpers.figsize)
@@ -327,112 +337,110 @@ for i, cut in regions.iteritems():
     helpers.add_description(fig, ax, align='br', strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr, 'Shift: {:0.4f}'.format(eff_curve_shift)])
     helpers.add_legend(fig, ax)
     helpers.add_grid(fig, ax)
-    pickle.dump(pl_eff_diff, file( write_file('plots/pickle/matched_differential_%s_trigger%d_region%s.pkl' % (filename_id, tJetEt_cut, i)), 'w+') )
-    pl.savefig( write_file('plots/differential/%s_trigger%d_region%s.png' % (filename_id, tJetEt_cut, i)) )
-    pl.close()
+    pickle.dump(pl_eff_diff, file(helpers.write_file('plots/pickle/matched_differential_%s_trigger%d_region%s.pkl' % (filename_id, tJetEt_cut, i)), 'w+'))
+    helpers.to_file(fig, ax, 'plots/differential/{}_trigger{:0.0f}_region{}.png'.format(filename_id, tJetEt_cut, i))
+    pl.close(fig)
 
-# ##### ACTUALLY START HERE #####
+# buildin plots for rho
+print "\t", "rho histograms"
+fig, ax = pl.subplots(figsize=helpers.figsize)
+ax.hist(data['offline_rho'], bins=bins_rho, stacked=True, fill=False, histtype='step', color='b', label=r'offline Kt4LCTopo', linewidth=helpers.linewidth)
+ax.hist(data['gFEX_rho_all'], bins=bins_rho, stacked=True, fill=False, histtype='step', color='r', label=helpers.region_legend('all'), linewidth=helpers.linewidth)
+ax.hist(data['gFEX_rho_1'],   bins=bins_rho, stacked=True, fill=False, histtype='step', color='c', label=helpers.region_legend(1), linewidth=helpers.linewidth)
+ax.hist(data['gFEX_rho_2'],   bins=bins_rho, stacked=True, fill=False, histtype='step', color='m', label=helpers.region_legend(2), linewidth=helpers.linewidth)
+ax.hist(data['gFEX_rho_3'],   bins=bins_rho, stacked=True, fill=False, histtype='step', color='y', label=helpers.region_legend(3), linewidth=helpers.linewidth)
+ax.hist(data['gFEX_rho_4'],   bins=bins_rho, stacked=True, fill=False, histtype='step', color='k', label=helpers.region_legend(4), linewidth=helpers.linewidth)
+helpers.add_legend(fig, ax)
+helpers.add_labels(fig, ax, xlabel=r'$\rho$ [GeV]', ylabel=r'count')
+helpers.add_grid(fig, ax)
+helpers.add_description(fig, ax, align='br', strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+helpers.to_file(fig, ax, "plots/pileup/{}_rho.png".format(filename_id))
+pl.close(fig)
 
-#buildin plots for rho
-fig = pl.figure(figsize=figsize)
-pl.hist(data['offline_rho'], bins=bins_rho, stacked=True, fill=filled, histtype='step', color='b', label=r'offline Kt4LCTopo', linewidth=linewidth)
-pl.hist(data['gFEX_rho_all'], bins=bins_rho, stacked=True, fill=filled, histtype='step', color='r', label=region_legend['all'], linewidth=linewidth)
-pl.hist(data['gFEX_rho_1'],   bins=bins_rho, stacked=True, fill=filled, histtype='step', color='c', label=region_legend[1], linewidth=linewidth)
-pl.hist(data['gFEX_rho_2'],   bins=bins_rho, stacked=True, fill=filled, histtype='step', color='m', label=region_legend[2], linewidth=linewidth)
-pl.hist(data['gFEX_rho_3'],   bins=bins_rho, stacked=True, fill=filled, histtype='step', color='y', label=region_legend[3], linewidth=linewidth)
-pl.hist(data['gFEX_rho_4'],   bins=bins_rho, stacked=True, fill=filled, histtype='step', color='k', label=region_legend[4], linewidth=linewidth)
-legend = pl.legend(fancybox=True, framealpha=0.75, fontsize=labelsize)
-legend.get_frame().set_facecolor(light_grey)
-legend.get_frame().set_linewidth(0.0)
-pl.xlabel(r'$\rho$ [GeV]', fontsize=labelsize)
-pl.ylabel(r'count', fontsize=labelsize)
-pl.grid(True, which='both', linewidth=3, linestyle='--', alpha=0.5)
-pl.text(0.95, 0.05, basicTextStr['default'], transform=fig.gca().transAxes, fontsize=labelsize, verticalalignment='bottom', horizontalalignment='right', bbox=textprops)
-pl.tick_params(axis='both', which='major', labelsize=labelsize)
-pl.savefig( write_file("plots/pileup/seed%d_noise%d_signal%d_rho.png" % (args.seedEt_thresh, args.noise_filter, args.tower_thresh)) )
-pl.close()
-
-fig=pl.figure(figsize=figsize)
+print "\t", "delta rho histograms"
+fig, ax = pl.subplots(figsize=helpers.figsize)
 diff21 = data['gFEX_rho_2'] - data['gFEX_rho_1']
 diff43 = data['gFEX_rho_4'] - data['gFEX_rho_3']
-xlimit = np.ceil(np.max([np.max(diff21),np.max(diff43)])/10)*10
+xlimit = np.ceil(np.max([np.max(diff21), np.max(diff43)])/10)*10
+
 hist, bins = np.histogram(data['gFEX_rho_2'] - data['gFEX_rho_1'], density=True, bins=np.arange(-xlimit, xlimit+1., 1.))
-fwhm = FWHM(bins, hist)
-pl.plot(bins[:-1], hist, linestyle='steps-post', color='b', alpha=0.75, label='region 2 - region 1\nFWHM: %0.4f' % fwhm, linewidth=linewidth)
+fwhm = helpers.FWHM(bins, hist)
+ax.plot(bins[:-1], hist, linestyle='steps-post', color='b', alpha=0.75, label='region 2 - region 1\nFWHM: %0.4f' % fwhm, linewidth=helpers.linewidth)
+
 hist, bins = np.histogram(data['gFEX_rho_4'] - data['gFEX_rho_3'], density=True, bins=np.arange(-xlimit, xlimit+1., 1.))
-fwhm = FWHM(bins, hist)
-pl.plot(bins[:-1], hist, linestyle='steps-post', color='r', alpha=0.75, label='region 4 - region 3\nFWHM: %0.4f' % fwhm, linewidth=linewidth)
-legend = pl.legend(fancybox=True, framealpha=0.75, fontsize=labelsize)
-legend.get_frame().set_facecolor(light_grey)
-legend.get_frame().set_linewidth(0.0)
-pl.xlabel(r'$\Delta\rho$ [GeV]', fontsize=labelsize)
-pl.ylabel(r'normalized counts', fontsize=labelsize)
-pl.grid(True, which='both', linewidth=3, linestyle='--', alpha=0.5)
-pl.text(0.95, 0.05, basicTextStr['default'], transform=fig.gca().transAxes, fontsize=labelsize, verticalalignment='bottom', horizontalalignment='right', bbox=textprops)
-pl.tick_params(axis='both', which='major', labelsize=labelsize)
-pl.savefig( write_file("plots/pileup/%s_deltaRho.png" % (filename_id)) )
-pl.yscale('log', nonposy='clip')
-pl.savefig( write_file("plots/pileup/%s_deltaRho_logy.png" % (filename_id)) )
-pl.close()
+fwhm = helpers.FWHM(bins, hist)
+ax.plot(bins[:-1], hist, linestyle='steps-post', color='r', alpha=0.75, label='region 4 - region 3\nFWHM: %0.4f' % fwhm, linewidth=helpers.linewidth)
 
-corr = np.corrcoef(data['vxp_n'], data['offline_rho'])[0,1]
-fig = pl.figure(figsize=figsize)
-pl.hist2d(data['vxp_n'], data['offline_rho'], norm=LogNorm(), bins=(bins_vertices, bins_rho) , alpha=0.75, cmap = cmap)
-cbar = pl.colorbar()
-cbar.set_label('number density', fontsize=labelsize)
-pl.xlabel(label_nVer, fontsize=labelsize)
-pl.ylabel(label_oRho, fontsize=labelsize)
-pl.grid(True, which='both', linewidth=3, linestyle='--', alpha=0.5)
-pl.text(0.95, 0.95, '%s\n$\mathrm{Corr} = %0.4f$' % (basicTextStr['default'], corr), transform=fig.gca().transAxes, fontsize=labelsize, verticalalignment='top', horizontalalignment='right', bbox=textprops)
-pl.tick_params(axis='both', which='major', labelsize=labelsize)
-pl.savefig( write_file('plots/pileup/%s_offlineRho.png' % (filename_id)) )
-pl.close()
+helpers.add_legend(fig, ax)
+helpers.add_labels(fig, ax, xlabel=r'$\Delta\rho$ [GeV]', ylabel=r'normalized counts')
+helpers.add_grid(fig, ax)
+helpers.add_description(fig, ax, align='br', strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
 
-for col,legend in zip(['gFEX_rho_all','gFEX_rho_1','gFEX_rho_2','gFEX_rho_3','gFEX_rho_4'],['all',1,2,3,4]):
+helpers.to_file(fig, ax, "plots/pileup/{}_deltaRho.png".format(filename_id))
+ax.set_yscale('log', nonposy='clip')
+helpers.to_file(fig, ax, "plots/pileup/{}_deltaRho_logy.png".format(filename_id))
+pl.close(fig)
+
+print "\t", "vxpN versus oRho"
+x = data['vxp_n']
+y = data['offline_rho']
+bins_x = bins_vertices
+bins_y = bins_rho
+label_x = helpers.labels['vxp.number']
+label_y = helpers.labels['rho.offline']
+xlim = ylim = (0., 1000.)
+fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, align='tr',
+                         strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+
+helpers.to_file(fig, ax, 'plots/pileup/{}_offlineRho.png'.format(filename_id))
+pl.close(fig)
+
+
+for col, legend in zip(['gFEX_rho_all', 'gFEX_rho_1', 'gFEX_rho_2', 'gFEX_rho_3', 'gFEX_rho_4'],
+                       ['all', 1, 2, 3, 4]):
 
   try:
-    corr = np.corrcoef(data['vxp_n'], data[col])[0,1]
-    fig = pl.figure(figsize=figsize)
-    pl.hist2d(data['vxp_n'], data[col], norm=LogNorm(), bins=(bins_vertices, bins_rho) , alpha=0.75, cmap = cmap)
-    cbar = pl.colorbar()
-    cbar.set_label('number density', fontsize=labelsize)
-    pl.xlabel(label_nVer, fontsize=labelsize)
-    pl.ylabel('%s, %s' % (label_gRho, region_legend[legend]), fontsize=labelsize)
-    pl.grid(True, which='both', linewidth=3, linestyle='--', alpha=0.5)
-    pl.text(0.95, 0.95, '%s\n$\mathrm{Corr} = %0.4f$' % (basicTextStr['default'], corr), transform=fig.gca().transAxes, fontsize=labelsize, verticalalignment='top', horizontalalignment='right', bbox=textprops)
-    pl.tick_params(axis='both', which='major', labelsize=labelsize)
-    pl.savefig( write_file('plots/pileup/%s_%s.png' % (filename_id, col)) )
-    pl.close()
+    print "\t", "vxpN versus {}".format(col)
+    x = data['vxp_n']
+    y = data[col]
+    bins_x = bins_vertices
+    bins_y = bins_rho
+    label_x = helpers.labels['vxp.number']
+    label_y = '{}, {}'.format(helpers.labels['rho.offline'], helpers.region_legend(legend))
+    xlim = ylim = (0., 1000.)
+    fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, align='tr',
+                             strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+
+    helpers.to_file(fig, ax, 'plots/pileup/{}_{}.png'.format(filename_id, col))
+    pl.close(fig)
   except:
-    print "Error for %s: could not make correlation between gFEX rho and primary vertices" % col
+    print "Error for {}: could not make correlation between gFEX rho and primary vertices".format(col)
+    pl.close(fig)
     pass
 
   try:
-    corr = np.corrcoef(data['offline_rho'], data[col])[0,1]
-    fig = pl.figure(figsize=figsize)
-    pl.hist2d(data['offline_rho'], data[col], norm=LogNorm(), bins=(bins_rho, bins_rho) , alpha=0.75, cmap = cmap)
-    cbar = pl.colorbar()
-    cbar.set_label('number density', fontsize=labelsize)
-    pl.xlabel(label_oRho, fontsize=labelsize)
-    pl.ylabel('%s, %s' % (label_gRho, region_legend[legend]), fontsize=labelsize)
-    pl.grid(True, which='both', linewidth=3, linestyle='--', alpha=0.5)
-    pl.text(0.95, 0.05, '%s\n%s\n$\mathrm{Corr} = %0.4f$' % (dataSetStr, towerThrStr, corr), transform=fig.gca().transAxes, fontsize=labelsize, verticalalignment='bottom', horizontalalignment='right', bbox=textprops)
+    print "\t", "oRho versus {}".format(col)
+    x = data['offline_rho']
+    y = data[col]
+    bins_x = bins_rho
+    bins_y = bins_rho
+    label_x = helpers.labels['rho.offline']
+    label_y = '{}, {}'.format(helpers.labels['rho.gFEX'], helpers.region_legend(legend))
+    xlim = ylim = (0., 1000.)
+    fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, align='br',
+                             strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
 
-    #add atlas simulation
-    #    internal
-    pl.text(0.05, 0.95, 'ATLAS', fontsize=42, style='italic', fontweight='bold', verticalalignment='top', horizontalalignment='left', transform=fig.gca().transAxes)
-    pl.text(0.27, 0.95, 'Preliminary', verticalalignment='top', horizontalalignment='left', fontsize=40, transform=fig.gca().transAxes)
-    pl.text(0.05, 0.90, 'Simulation', verticalalignment='top', horizontalalignment='left', fontsize=40, transform=fig.gca().transAxes)
+    helpers.add_atlas(fig, ax, level=1)
 
-    pl.tick_params(axis='both', which='major', labelsize=labelsize)
-    pl.savefig( write_file('plots/pileup/%s_%s_correlation.png' % (filename_id, col)), bbox_inches='tight')
-    pl.savefig( write_file('plots/pileup/%s_%s_correlation.eps' % (filename_id, col)), bbox_inches='tight')
-    pl.savefig( write_file('plots/pileup/%s_%s_correlation.pdf' % (filename_id, col)), bbox_inches='tight')
-    pl.close()
+    helpers.to_file(fig, ax, 'plots/pileup/{}_{}_correlation.png'.format(filename_id, col))
+    helpers.to_file(fig, ax, 'plots/pileup/{}_{}_correlation.pdf'.format(filename_id, col))
+    helpers.to_file(fig, ax, 'plots/pileup/{}_{}_correlation.eps'.format(filename_id, col))
+    pl.close(fig)
   except:
-    print "Error for %s: could not make correlation between offline rho and gFEX rho" % col
+    print "Error for {}: could not make correlation between offline rho and gFEX rho".format(col)
+    pl.close(fig)
     pass
 
 endTime_wall      = time.time()
 endTime_processor = time.clock()
-print "Finished job in:\n\t Wall time: %0.2f s \n\t Clock Time: %0.2f s" % ( (endTime_wall - startTime_wall), (endTime_processor - startTime_processor))
+print "Finished job in:\n\t Wall time: {:0.2f} s \n\t Clock Time: {:0.2f} s".format((endTime_wall - startTime_wall), (endTime_processor - startTime_processor))

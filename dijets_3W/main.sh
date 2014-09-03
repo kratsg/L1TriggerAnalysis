@@ -15,4 +15,15 @@ printf "Job is running on node: "; /bin/hostname
 printf "Job running as user: "; /usr/bin/id 
 printf "Job is running in directory: "; /bin/pwd 
 
-python main.py --processNum ${1} --file ${2} --start ${3} --numEvents ${4} --stepSize 100 --seedEt=15 --towerThresh=6 --noiseFilter=0 --digitization=125
+# You would normally change the --seedEt, --towerThresh, --noiseFilter, --digitization to suit your needs. Digitization is in MeV, 0 == no digitization.
+
+python main.py --processNum ${1} --file ${2} --start ${3} --numEvents ${4} --stepSize 100 --seedEt=15 --towerThresh=6 --noiseFilter=0 --digitization=256
+
+# Can run other scripts after processing with one set of configs
+
+#python main.py --processNum ${1} --file ${2} --start ${3} --numEvents ${4} --stepSize 100 --seedEt=15 --towerThresh=6 --noiseFilter=0 --digitization=125
+#python main.py --processNum ${1} --file ${2} --start ${3} --numEvents ${4} --stepSize 100 --seedEt=15 --towerThresh=6 --noiseFilter=0 --digitization=256
+#python main.py --processNum ${1} --file ${2} --start ${3} --numEvents ${4} --stepSize 100 --seedEt=15 --towerThresh=6 --noiseFilter=0 --digitization=512
+
+
+
