@@ -25,7 +25,7 @@ class PlotHelpers(object):
     self.ticksize = kwargs.get('ticksize', 26)
     self.linewidth = kwargs.get('linewidth', 4)
     self.light_grey = np.array([float(200)/float(255)]*3)
-    self.cmap = kwargs.get('cmap', pl.cm.autumn)
+    self.cmap = kwargs.get('cmap', pl.cm.hot_r)
     self.textprops = dict(boxstyle='round', facecolor=self.light_grey, alpha=0.5, linewidth=0.0)
     self.regions = {'all': [-4.9,  4.9],\
                         1: [-1.6,  0.0],\
