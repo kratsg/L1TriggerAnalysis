@@ -38,10 +38,21 @@ def write_file(f):
   ensure_dir(f)
   return f
 
+
+def humansize(nbytes):
+  suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+  if nbytes == 0:
+    return '0 B'
+  i = 0
+  while nbytes >= 1024 and i < len(suffixes)-1:
+    nbytes /= 1024.
+    i += 1
+  f = ('%.2f' % nbytes).rstrip('0').rstrip('.')
+  return '%s %s' % (f, suffixes[i])
+
+
 startTime_wall      = time.time()
 startTime_processor = time.clock()
-
-raw_data = np.array([])
 
 numFiles = min(len(files), args.numFiles)
 
@@ -68,4 +79,6 @@ endTime_wall      = time.time()
 endTime_processor = time.clock()
 print "Finished job in:\n\t Wall time: {:0.2f}s \n\t Clock Time: {:0.2f}s".format((endTime_wall - startTime_wall), (endTime_processor - startTime_processor))
 
-pickle.dump(raw_data, file(write_file('data/seed{:0.0f}/leading_jets_seed{:0.0f}_noise{:0.0f}_signal{:0.0f}_digitization{:0.0f}.pkl'.format(args.seedEt_thresh, args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization)), 'w+'))
+fileToWrite = write_file('data/seed{:0.0f}/leading_jets_seed{:0.0f}_noise{:0.0f}_signal{:0.0f}_digitization{:0.0f}.pkl'.format(args.seedEt_thresh, args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization))
+pickle.dump(np.hstack(dataHolder), file(fileToWrite, 'w+'))
+print "File Written: {}\nFile Size: {}".format(fileToWrite, humansize(os.path.getsize(fileToWrite)))
