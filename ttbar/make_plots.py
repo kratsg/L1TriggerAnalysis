@@ -179,7 +179,7 @@ for i, cut in regions.iteritems():
     xlim = ylim = (0., 1000.)
     label_x = r'offline $p_T^{\mathrm{jet}}$ [GeV]'
     label_y = r'trigger $E_T^{\mathrm{jet}}$ [GeV]'
-    fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, ylim=ylim, profile_y=True, align='tr', title=r'no $\rho$ subtraction',
+    fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, ylim=ylim, profile_y=True, align='br', title=r'no $\rho$ subtraction',
                              strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
 
     helpers.to_file(fig, ax, 'plots/jet_energy_correlation/{}_region{}.png'.format(filename_id, i))

@@ -49,7 +49,7 @@ eos
 
 start = 0
 stop = 9600
-step = 480
+step = 960
 
 numJobs = 0
 

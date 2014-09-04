@@ -40,10 +40,10 @@ f = TFile.Open(args.filename)
 t = f.Get(args.treename)
 
 #offline and trigger jet column names to pull from the file, must be in this order to sync with the predefined classes in atlas_jets package
-offline_column_names = ['jet_AntiKt10LCTopoTrimmedPtFrac5SmallR30_%s' % col for col in ['E', 'pt', 'm', 'eta', 'phi', 'TrimmedSubjetsPtFrac5SmallR30_nsj', 'Tau1', 'Tau2', 'Tau3', 'SPLIT12', 'SPLIT23', 'SPLIT34', 'TrimmedSubjetsPtFrac5SmallR30_index']] + ['jet_AntiKt10LCTopoTrimmedSubjetsPtFrac5SmallR30_pt']
+offline_column_names = ['jet_AntiKt10LCTopoTrimmedPtFrac5SmallR30_%s' % col for col in ['pt', 'm', 'eta', 'phi', 'TrimmedSubjetsPtFrac5SmallR30_nsj', 'Tau1', 'Tau2', 'Tau3', 'SPLIT12', 'SPLIT23', 'SPLIT34', 'TrimmedSubjetsPtFrac5SmallR30_index']] + ['jet_AntiKt10LCTopoTrimmedSubjetsPtFrac5SmallR30_pt']
 
 #paired jets initialization
-data = np.array([])
+out_data = []
 
 startTime_wall      = time.time()
 startTime_processor = time.clock()
@@ -64,6 +64,9 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
     if len(oEvent.jets) == 0:
       continue
 
+    # max([T['trig_L1_jet_et8x8'][k]/1000.0 for k in xrange(T['trig_L1_jet_n']) if abs(T['trig_L1_jet_eta'][k])<3.2]+[1.0])>100.0
+    # sum([T['trig_L1_jet_et8x8'][k]/1000.0 for k in xrange(T['trig_L1_jet_n']) if T['trig_L1_jet_et8x8'][k]>20000. if abs(T['trig_L1_jet_eta'][k])<3.2])>200.00
+
     trig_L1_jet_et = np.append(event['trig_L1_jet_et8x8'].tolist()/1000., 0.0)
     trig_L1_jet_eta = np.append(event['trig_L1_jet_eta'].tolist(), 0.0)
     eta_mask = np.abs(trig_L1_jet_eta) < 3.2
@@ -71,10 +74,7 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
 
     event_data = np.array([(oEvent.jets[0], np.amax(trig_L1_jet_et[np.where(eta_mask)]), np.sum(trig_L1_jet_et[np.where(et_mask&eta_mask)]) )], dtype=datatype)
 
-    if data.size > 0:
-      data = np.append(event_data, data)
-    else:
-      data = event_data
+    out_data.append(event_data)
 
 endTime_wall      = time.time()
 endTime_processor = time.clock()
@@ -82,5 +82,5 @@ print "Finished job %d in:\n\t Wall time: %0.2f s \n\t Clock Time: %0.2f s" % (a
 
 '''at this point, we've processed all the data and we just need to dump it'''
 filename_ending = 'trig_L1_et_process%d' % (args.process_num)
-pickle.dump(data, file( write_file('data/%s.pkl' % (filename_ending) ), 'w+') )
-print len(data)
+pickle.dump(np.hstack(out_data), file( write_file('data/%s.pkl' % (filename_ending) ), 'w+') )
+print len(out_data)

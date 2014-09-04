@@ -49,7 +49,7 @@ eos
 
 start = 0
 stop = 10000
-step = 500
+step = 1000
 
 numJobs = 0
 

@@ -30,30 +30,35 @@ args = parser.parse_args()
 
 print args
 
+
 def ensure_dir(f):
     d = os.path.dirname(f)
     if not os.path.exists(d):
         os.makedirs(d)
 
+
 def write_file(f):
   ensure_dir(f)
   return f
 
-def distance(a,b):
-  #a = (phi, eta); b = (phi, eta)
+
+def distance(a, b):
+  # a = (phi, eta); b = (phi, eta)
   delta = np.abs(a-b)
-  delta = np.array( [2*np.pi - delta[0] if delta[0] > np.pi else delta[0], delta[1]] ) #deal with periodicity in phi
+  delta = np.array([2*np.pi - delta[0] if delta[0] > np.pi else delta[0], delta[1]])  # deal with periodicity in phi
   return np.sqrt((delta**2.).sum(axis=-1))
+
 
 # define helper functions - also a source of parallelization!
 def compute_jetDistance(jet1, jet2):
-  return distance( np.array(jet1.coord), np.array(jet2.coord) )
+  return distance(np.array(jet1.coord), np.array(jet2.coord))
+
 
 def match_jets(oJets=[], tJets=[]):
   # dR as a change in distance
   dR = 1.0
   if len(tJets) == 0:
-    return np.array([[oJet,gTowers.Jet(TLorentzVector(), radius = 1.0, towers = [None, None, None], seed = TLorentzVector(), area = 0.0)] for oJet in oJets])
+    return np.array([[oJet, gTowers.Jet(TLorentzVector(), radius=1.0, towers=[None, None, None], seed=TLorentzVector(), area=0.0)] for oJet in oJets])
   # we want to match the closest gTower jet for every offline jet
   matched_jets = []
   for oJet in oJets:
@@ -61,17 +66,18 @@ def match_jets(oJets=[], tJets=[]):
     energies = np.array(map(lambda tJet: tJet.Et, tJets))
     # return jet with highest ET within dR
     if np.where(distances <= dR)[0].size == 0:
-      closest_tJet = gTowers.Jet(TLorentzVector(), radius = 1.0, towers = [None, None, None], seed = TLorentzVector(), area = 0.0)
+      closest_tJet = gTowers.Jet(TLorentzVector(), radius=1.0, towers=[None, None, None], seed=TLorentzVector(), area=0.0)
     else:
       max_energy_in_distance = np.amax(energies[np.where(distances <= 1.0)])
       index_jet = np.where(energies == max_energy_in_distance)[0][0]
       closest_tJet = tJets[index_jet]
-    matched_jets.append([oJet,closest_tJet])
+    matched_jets.append([oJet, closest_tJet])
   return matched_jets
+
 
 def isolation_condition(leading_jet, jets):
   for jet in jets:
-    #skip leading jet
+    # skip leading jet
     if jet == leading_jet:
       continue
     if compute_jetDistance(jet, leading_jet) < 2.0:
@@ -82,32 +88,32 @@ def isolation_condition(leading_jet, jets):
 f = TFile.Open(args.filename)
 t = f.Get(args.treename)
 
-#set seed cuts
-seed_filter = gTowers.SeedFilter( et = args.seedEt_thresh, n = 100 )
+# set seed cuts
+seed_filter = gTowers.SeedFilter(et=args.seedEt_thresh, n=100)
 # for offline rho and vxp_n
 rho_column_name     = 'Eventshape_rhoKt4LC'
 vertices_column_name = 'vxp_nTracks'
 weight_column_name = 'weight'
 
-#offline and trigger jet column names to pull from the file, must be in this order to sync with the predefined classes in atlas_jets package
+# offline and trigger jet column names to pull from the file, must be in this order to sync with the predefined classes in atlas_jets package
 offline_column_names = ['jet_AntiKt10LCTopoTrimmedPtFrac5SmallR30_%s' % col for col in ['pt', 'm', 'eta', 'phi', 'TrimmedSubjetsPtFrac5SmallR30_nsj', 'Tau1', 'Tau2', 'Tau3', 'SPLIT12', 'SPLIT23', 'SPLIT34', 'TrimmedSubjetsPtFrac5SmallR30_index']] + ['jet_AntiKt10LCTopoTrimmedSubjetsPtFrac5SmallR30_pt']
 gTower_column_names = ['gTower%s' % col for col in ['Et', 'NCells', 'EtaMin', 'EtaMax', 'PhiMin', 'PhiMax']]
 
-#paired jets initialization
-paired_jets = np.array([])
+# paired jets initialization
+paired_jets = []
 
 startTime_wall      = time.time()
 startTime_processor = time.clock()
 
-datatype = [('offline_rho', 'float32'),\
-              ('gFEX_rho_all','float32'),\
-              ('gFEX_rho_1','float32'),\
-              ('gFEX_rho_2','float32'),\
-              ('gFEX_rho_3','float32'),\
-              ('gFEX_rho_4','float32'),\
-              ('vxp_n', 'int32'),\
-              ('gTower_distribution','object'),\
-              ('weight','float32')]
+datatype = [('offline_rho', 'float32'),
+            ('gFEX_rho_all', 'float32'),
+            ('gFEX_rho_1', 'float32'),
+            ('gFEX_rho_2', 'float32'),
+            ('gFEX_rho_3', 'float32'),
+            ('gFEX_rho_4', 'float32'),
+            ('vxp_n', 'int32'),
+            ('gTower_distribution', 'object'),
+            ('weight', 'float32')]
 
 dataLoadTimes = []
 rowEvalTimes = []
@@ -120,7 +126,7 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
 
   for row in data:
     t2 = time.time()
-    #revive the record array
+    # revive the record array
     event = np.array(row)
     # jetPt, jetM, jetEta, jetPhi, nsj, tau1, tau2, tau3, split12, split23, split34, subjetsIndex, subjetsPt = event
     oEvent = OfflineJets.Event(event=[event[col].tolist() for col in offline_column_names])
@@ -143,29 +149,29 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
         else:
           temp_gTowerEt = np.floor(event[col].tolist()/args.digitization)*args.digitization
         gTowerData.append(temp_gTowerEt)
-        hist_gTowerMult, bins_gTowerMult = np.histogram( temp_gTowerEt/1000., bins=np.arange(0.0,100.0,2.0) )
+        hist_gTowerMult, bins_gTowerMult = np.histogram(temp_gTowerEt/1000., bins=np.arange(0.0, 100.0, 2.0))
         del temp_gTowerEt
       else:
         # no digitization
         gTowerData.append(event[col].tolist())
 
     # now do offline rho and num vertices
-    offline_rho = event[rho_column_name].item()/1000. #it's an array of one element, so just return the element
+    offline_rho = event[rho_column_name].item()/1000.  # it's an array of one element, so just return the element
     num_vertices = np.sum(event[vertices_column_name].tolist() >= 2)
-    event_weight = event[weight_column_name].item() or 1 #it's an array of one element, so just return the element (if it's 0 or 0.0, return 1.0)
+    event_weight = event[weight_column_name].item() or 1  # it's an array of one element, so just return the element (if it's 0 or 0.0, return 1.0)
 
-    del event # extracted all necessary data from it
+    del event  # extracted all necessary data from it
 
     t3 = time.time()
-    tEvent = gTowers.TowerEvent(event=gTowerData, seed_filter = seed_filter)
+    tEvent = gTowers.TowerEvent(event=gTowerData, seed_filter=seed_filter)
 
-    del gTowerData # converted that information into tEvent
+    del gTowerData  # converted that information into tEvent
 
     gFEX_rho_holder = {1: [], 2: [], 3: [], 4: []}
     for tower in tEvent.towers_below(args.tower_thresh):
       gFEX_rho_holder[tower.region].append(tower.rho)
     gFEX_rho = {'all': np.mean(list(chain(*gFEX_rho_holder.values()))), 1: -1., 2: -1., 3: -1., 4: -1.}
-    for region in [1,2,3,4]:
+    for region in [1, 2, 3, 4]:
       gFEX_rho[region] = np.mean(gFEX_rho_holder[region])
     rhoCalcTimes.append(time.time() - t3)
 
@@ -178,23 +184,20 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
     leading_oJet = matched_jets[0][0]
     matched_tJet = matched_jets[0][1]
 
-    event_data = np.array([leading_oJet.as_rec.tolist()[0]\
-                             + matched_tJet.as_rec.tolist()[0]\
-                             + (offline_rho,\
-                                 gFEX_rho['all'],\
-                                 gFEX_rho[1],\
-                                 gFEX_rho[2],\
-                                 gFEX_rho[3],\
-                                 gFEX_rho[4],\
-                                 num_vertices,\
-                                 hist_gTowerMult,\
-                                 event_weight)\
-                           ], dtype=(leading_oJet.as_rec.dtype.descr + matched_tJet.as_rec.dtype.descr + datatype) )
+    event_data = np.array([leading_oJet.as_rec.tolist()[0]
+                           + matched_tJet.as_rec.tolist()[0]
+                           + (offline_rho,
+                              gFEX_rho['all'],
+                              gFEX_rho[1],
+                              gFEX_rho[2],
+                              gFEX_rho[3],
+                              gFEX_rho[4],
+                              num_vertices,
+                              hist_gTowerMult,
+                              event_weight)
+                           ], dtype=(leading_oJet.as_rec.dtype.descr + matched_tJet.as_rec.dtype.descr + datatype))
 
-    if paired_jets.size > 0:
-      paired_jets = np.append(event_data, paired_jets)
-    else:
-      paired_jets = event_data
+    paired_jets.append(event_data)
 
     rowEvalTimes.append(time.time() - t2)
 
@@ -204,7 +207,7 @@ print "Finished job %d in:\n\t Wall time: %0.2f s \n\t Clock Time: %0.2f s" % (a
 
 '''at this point, we've processed all the data and we just need to dump it'''
 filename_ending = 'unweighted_seed%d_noise%d_signal%d_digitization%d_process%d' % (args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization, args.process_num)
-pickle.dump(paired_jets, file( write_file('data/seed%d/matched_jets_%s.pkl' % (args.seedEt_thresh, filename_ending) ), 'w+') )
+pickle.dump(np.hstack(paired_jets), file(write_file('data/seed%d/matched_jets_%s.pkl' % (args.seedEt_thresh, filename_ending)), 'w+'))
 print len(paired_jets)
 print "dataLoadTimes", np.mean(dataLoadTimes), np.std(dataLoadTimes)
 print "rowEvalTimes", np.mean(rowEvalTimes), np.std(rowEvalTimes)
