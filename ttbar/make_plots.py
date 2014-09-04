@@ -353,7 +353,7 @@ ax.hist(data['gFEX_rho_4'],   bins=bins_rho, stacked=True, fill=False, histtype=
 helpers.add_legend(fig, ax)
 helpers.add_labels(fig, ax, xlabel=r'$\rho$ [GeV]', ylabel=r'count')
 helpers.add_grid(fig, ax)
-helpers.add_description(fig, ax, align='br', strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+helpers.add_description(fig, ax, align='br', strings=[helpers.dataSetStr, helpers.towerThrStr])
 helpers.to_file(fig, ax, "plots/pileup/{}_rho.png".format(filename_id))
 pl.close(fig)
 
@@ -374,7 +374,7 @@ ax.plot(bins[:-1], hist, linestyle='steps-post', color='r', alpha=0.75, label='r
 helpers.add_legend(fig, ax)
 helpers.add_labels(fig, ax, xlabel=r'$\Delta\rho$ [GeV]', ylabel=r'normalized counts')
 helpers.add_grid(fig, ax)
-helpers.add_description(fig, ax, align='br', strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+helpers.add_description(fig, ax, align='br', strings=[helpers.dataSetStr, helpers.towerThrStr])
 
 helpers.to_file(fig, ax, "plots/pileup/{}_deltaRho.png".format(filename_id))
 ax.set_yscale('log', nonposy='clip')
@@ -390,7 +390,7 @@ label_x = helpers.labels['vxp.number']
 label_y = helpers.labels['rho.offline']
 xlim = ylim = (0., 1000.)
 fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, align='tr',
-                         strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+                         strings=[helpers.dataSetStr])
 
 helpers.to_file(fig, ax, 'plots/pileup/{}_offlineRho.png'.format(filename_id))
 pl.close(fig)
@@ -409,7 +409,7 @@ for col, legend in zip(['gFEX_rho_all', 'gFEX_rho_1', 'gFEX_rho_2', 'gFEX_rho_3'
     label_y = '{}, {}'.format(helpers.labels['rho.offline'], helpers.region_legend(legend))
     xlim = ylim = (0., 1000.)
     fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, align='tr',
-                             strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+                             strings=[helpers.dataSetStr, helpers.towerThrStr])
 
     helpers.to_file(fig, ax, 'plots/pileup/{}_{}.png'.format(filename_id, col))
     pl.close(fig)
@@ -428,7 +428,7 @@ for col, legend in zip(['gFEX_rho_all', 'gFEX_rho_1', 'gFEX_rho_2', 'gFEX_rho_3'
     label_y = '{}, {}'.format(helpers.labels['rho.gFEX'], helpers.region_legend(legend))
     xlim = ylim = (0., 1000.)
     fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, align='br',
-                             strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+                             strings=[helpers.dataSetStr, helpers.towerThrStr])
 
     helpers.add_atlas(fig, ax, level=1)
 
