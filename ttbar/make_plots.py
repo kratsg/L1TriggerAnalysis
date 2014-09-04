@@ -293,7 +293,7 @@ for i, cut in regions.iteritems():
     pl.close(fig)
     pass
 
-  points_x, mean_y, err_y = helpers.profile_y(np.arange(0., 1500., 10.), data['tJet.et'][np.where(cut)], tJetEt_correction[np.where(cut)])
+  points_x, mean_y, err_y = helpers.profile_y(np.arange(0., 1500., 10.), data['tJet.et'][region_cut], tJetEt_correction[region_cut])
   f = interp1d(points_x, mean_y, bounds_error=False, fill_value=0., kind='cubic')
   print region
 

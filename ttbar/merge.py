@@ -3,8 +3,9 @@ from glob import glob
 import os
 import argparse
 import time
+import re
 
-#randomize list of files
+# randomize list of files
 from random import shuffle
 
 try:
@@ -23,7 +24,7 @@ parser.add_argument('--numFiles',     type=int,   required=False, dest='numFiles
 # parse the arguments, throw errors if missing any
 args = parser.parse_args()
 
-files = glob("data/seed%d/matched_jets_unweighted_seed%d_noise%d_signal%d_digitization%d_process*.pkl" % (args.seedEt_thresh, args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization) )
+files = glob("data/seed{:0.0f}/matched_jets_unweighted_seed{:0.0f}_noise{:0.0f}_signal{:0.0f}_digitization{:0.0f}_process*.pkl".format(args.seedEt_thresh, args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization))
 shuffle(files)
 
 
@@ -31,6 +32,7 @@ def ensure_dir(f):
     d = os.path.dirname(f)
     if not os.path.exists(d):
         os.makedirs(d)
+
 
 def write_file(f):
   ensure_dir(f)
@@ -43,23 +45,27 @@ raw_data = np.array([])
 
 numFiles = min(len(files), args.numFiles)
 
+p = re.compile(r'^.*(?=process)')
+
 if numFiles > 0:
   filesToLoop = files[:numFiles]
 else:
   filesToLoop = files
 
+dataHolder = []
+dataSize = 0
+counter = 0
 for filename in filesToLoop:
-  data = pickle.load(file(filename))
-  if raw_data.size > 0:
-    raw_data = np.append(raw_data, data)
-  else:
-    raw_data = data
-  print len(data), len(raw_data), filename
+  dataHolder.append(pickle.load(file(filename)))
+  rawDataSize = dataHolder[-1].size
+  dataSize += rawDataSize
+  counter += 1
+  print "{:3d}/{:3d} | {:3d} | {:7d} | {}".format(counter, len(filesToLoop), rawDataSize, dataSize, p.sub('', filename))
 
-print "\nStats\n-------\n\t%d files\n\t%d events\n\t%d events per file" % (len(filesToLoop), len(raw_data), (len(raw_data)*1./len(filesToLoop)) )
+print "\nStats\n-------\n\t%d files\n\t%d events\n\t%d events per file" % (len(filesToLoop), dataSize, (dataSize*1./len(filesToLoop)))
 
 endTime_wall      = time.time()
 endTime_processor = time.clock()
-print "Finished job in:\n\t Wall time: %0.2f s \n\t Clock Time: %0.2f s" % ( (endTime_wall - startTime_wall), (endTime_processor - startTime_processor))
+print "Finished job in:\n\t Wall time: {:0.2f}s \n\t Clock Time: {:0.2f}s".format((endTime_wall - startTime_wall), (endTime_processor - startTime_processor))
 
-pickle.dump(raw_data, file( write_file('data/seed%d/leading_jets_seed%d_noise%d_signal%d_digitization%d.pkl' % (args.seedEt_thresh, args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization)), 'w+') )
+pickle.dump(raw_data, file(write_file('data/seed{:0.0f}/leading_jets_seed{:0.0f}_noise{:0.0f}_signal{:0.0f}_digitization{:0.0f}.pkl'.format(args.seedEt_thresh, args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization)), 'w+'))
