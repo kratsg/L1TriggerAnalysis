@@ -5,8 +5,13 @@ import matplotlib.pyplot as pl
 import argparse
 import time
 
+import sys
 from plots_wrapper import PlotHelpers
+
+# locally load the config file
+sys.path.insert(0, '.')
 import plot_configs as plotConfigs
+sys.path.remove('.')
 
 # for getting FWHM
 from scipy.interpolate import interp1d
