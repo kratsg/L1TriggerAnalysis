@@ -23,6 +23,8 @@ python make_plots.py --*kwargs
 ```
 and the list of keyword arguments from `python make_plots.py -h`. Notice that a base set of keyword arguments are the same to help with consistency and copy-paste if needed.
 
-### Contact
+### Obtaining the python packages
+If you run `ruby make_config.rb` and it states that it is missing `local.tar.gz` which is not included in this repository (62MB), you can grab a copy here: [faxbox::/user/kratsg/L1TriggerAnalysis/local.tar.gz](http://faxbox.usatlas.org/user/kratsg/L1TriggerAnalysis/local.tar.gz)
 
+## Contact
 File an issue or contact [Giordon Stark](https://github.com/kratsg) with any questions.
