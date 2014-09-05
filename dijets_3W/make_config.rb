@@ -15,7 +15,7 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-localPython = File.expand_path "../.local"
+localPython = File.expand_path "../local.tar.gz"
 mainPython  = File.expand_path "main.py"
 
 #check that paths exist

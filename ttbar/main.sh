@@ -8,7 +8,12 @@ export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh
 localSetupROOT 5.34.18-x86_64-slc6-gcc4.7 --skipConfirm
 
-export PYTHONPATH=$HOME/CondorPythonLocal/lib/python2.7/site-packages:$PYTHONPATH
+# extract to $HOME because that's where it looks
+tar -zxf local.tar.gz -C $HOME
+
+# export the .local directory under $HOME and prepend to $PYTHONPATH
+#   by default, python should already search the directory, we're being explicit
+export PYTHONPATH=$HOME/.local/lib/python2.7/site-packages:$PYTHONPATH
 
 printf "Start time: "; /bin/date 
 printf "Job is running on node: "; /bin/hostname 

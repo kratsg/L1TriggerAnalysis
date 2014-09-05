@@ -98,6 +98,7 @@ weight_column_name = 'weight'
 # offline and trigger jet column names to pull from the file, must be in this order to sync with the predefined classes in atlas_jets package
 offline_column_names = ['jet_AntiKt10LCTopoTrimmedPtFrac5SmallR30_%s' % col for col in ['pt', 'm', 'eta', 'phi', 'TrimmedSubjetsPtFrac5SmallR30_nsj', 'Tau1', 'Tau2', 'Tau3', 'SPLIT12', 'SPLIT23', 'SPLIT34', 'TrimmedSubjetsPtFrac5SmallR30_index']] + ['jet_AntiKt10LCTopoTrimmedSubjetsPtFrac5SmallR30_pt']
 gTower_column_names = ['gTower%s' % col for col in ['Et', 'NCells', 'EtaMin', 'EtaMax', 'PhiMin', 'PhiMax']]
+trig_L1_et_column_names = ['trig_L1_jet_et8x8', 'trig_L1_jet_eta']
 
 # paired jets initialization
 paired_jets = []
@@ -113,15 +114,23 @@ datatype = [('offline_rho', 'float32'),
             ('gFEX_rho_4', 'float32'),
             ('vxp_n', 'int32'),
             ('gTower_distribution', 'object'),
-            ('weight', 'float32')]
+            ('weight', 'float32'),
+            ('leading_trig_L1_jet_et8x8', 'float32'),
+            ('sum_trig_L1_jet_et8x8', 'float32')]
 
 dataLoadTimes = []
 rowEvalTimes = []
 rhoCalcTimes = []
 
+allBranches = [rho_column_name, vertices_column_name, weight_column_name] + offline_column_names + gTower_column_names + trig_L1_et_column_names
+
 for event_num in xrange(args.event_start, args.event_start+args.num_events, args.step_size):
   t1 = time.time()
-  data = rnp.tree2rec(t, branches=[rho_column_name] + [vertices_column_name] + [weight_column_name] + offline_column_names + gTower_column_names, start=(event_num), stop=(event_num+args.step_size))
+  data = rnp.tree2rec(t,
+                      branches=allBranches,
+                      start=(event_num),
+                      stop=(event_num+args.step_size)
+                      )
   dataLoadTimes.append(time.time() - t1)
 
   for row in data:
@@ -160,6 +169,14 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
     num_vertices = np.sum(event[vertices_column_name].tolist() >= 2)
     event_weight = event[weight_column_name].item() or 1  # it's an array of one element, so just return the element (if it's 0 or 0.0, return 1.0)
 
+    # Michael Begel messaged me this algorithm
+    # max([T['trig_L1_jet_et8x8'][k]/1000.0 for k in xrange(T['trig_L1_jet_n']) if abs(T['trig_L1_jet_eta'][k])<3.2]+[1.0])>100.0
+    # sum([T['trig_L1_jet_et8x8'][k]/1000.0 for k in xrange(T['trig_L1_jet_n']) if T['trig_L1_jet_et8x8'][k]>20000. if abs(T['trig_L1_jet_eta'][k])<3.2])>200.00
+    trig_L1_jet_et = np.append(event['trig_L1_jet_et8x8'].tolist()/1000., 0.0)
+    trig_L1_jet_eta = np.append(event['trig_L1_jet_eta'].tolist(), 0.0)
+    eta_mask = np.abs(trig_L1_jet_eta) < 3.2
+    et_mask = trig_L1_jet_et > 20.
+
     del event  # extracted all necessary data from it
 
     t3 = time.time()
@@ -194,7 +211,9 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
                               gFEX_rho[4],
                               num_vertices,
                               hist_gTowerMult,
-                              event_weight)
+                              event_weight,
+                              np.amax(trig_L1_jet_et[np.where(eta_mask)]),
+                              np.sum(trig_L1_jet_et[np.where(et_mask & eta_mask)]))
                            ], dtype=(leading_oJet.as_rec.dtype.descr + matched_tJet.as_rec.dtype.descr + datatype))
 
     paired_jets.append(event_data)
