@@ -55,7 +55,8 @@ def compute_jetDistance(jet1, jet2):
 
 
 def match_jets(oJets=[], tJets=[]):
-  null_gJet = gTowers.Jet(TLorentzVector(), radius=1.0, towers=[None, None, None], seed=gTowers.Tower(et=0.0, etamin=0.0, etamax=0.0, phimin=0.0, phimax=0.0, num_cells=0), area=0.0)
+  null_gTower = gTowers.Tower(et=0.0, etamin=0.0, etamax=0.0, phimin=0.0, phimax=0.0, num_cells=0)
+  null_gJet = gTowers.Jet(TLorentzVector(), radius=1.0, towers=[null_gTower, null_gTower, null_gTower], seed=null_gTower, area=0.0)
   # dR as a change in distance
   dR = 1.0
   if len(tJets) == 0:
