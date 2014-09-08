@@ -55,10 +55,11 @@ def compute_jetDistance(jet1, jet2):
 
 
 def match_jets(oJets=[], tJets=[]):
+  null_gJet = gTowers.Jet(TLorentzVector(), radius=1.0, towers=[None, None, None], seed=gTowers.Tower(et=0.0, etamin=0.0, etamax=0.0, phimin=0.0, phimax=0.0, num_cells=0), area=0.0)
   # dR as a change in distance
   dR = 1.0
   if len(tJets) == 0:
-    return np.array([[oJet, gTowers.Jet(TLorentzVector(), radius=1.0, towers=[None, None, None], seed=TLorentzVector(), area=0.0)] for oJet in oJets])
+    return np.array([[oJet, null_gJet] for oJet in oJets])
   # we want to match the closest gTower jet for every offline jet
   matched_jets = []
   for oJet in oJets:
@@ -66,14 +67,13 @@ def match_jets(oJets=[], tJets=[]):
     energies = np.array(map(lambda tJet: tJet.Et, tJets))
     # return jet with highest ET within dR
     if np.where(distances <= dR)[0].size == 0:
-      closest_tJet = gTowers.Jet(TLorentzVector(), radius=1.0, towers=[None, None, None], seed=TLorentzVector(), area=0.0)
+      closest_tJet = null_gJet
     else:
       max_energy_in_distance = np.amax(energies[np.where(distances <= 1.0)])
       index_jet = np.where(energies == max_energy_in_distance)[0][0]
       closest_tJet = tJets[index_jet]
     matched_jets.append([oJet, closest_tJet])
   return matched_jets
-
 
 def isolation_condition(leading_jet, jets):
   for jet in jets:
