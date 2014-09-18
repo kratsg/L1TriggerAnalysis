@@ -251,3 +251,34 @@ class PlotHelpers(object):
       return ''
     else:
       return '$w = {0:0.1f},\ x_{{0.95}} = {1:0.1f}$'.format(w[1], self.peak_point(w))
+
+
+# start defining a meta-class to register all instances of classes made
+# http://jakevdp.github.io/blog/2012/12/01/a-primer-on-python-metaclasses/#Example-2:-Registering-Subclasses
+class Plottable(type):
+  # we use __init__ rather than __new__ here because we want to
+  # modify attributes of the class *after* they have been created
+  def __init__(cls, name, bases, dct):
+    if not hasattr(cls, 'registry'):
+      # this is the base class. Create an empty registry
+      cls.registry = {}
+    else:
+      if cls.registerMe:
+        # this is a derived class. Add cls to the registry
+        interface_id = name.lower()
+        cls.registry[interface_id] = cls
+
+    super(Plottable, cls).__init__(name, bases, dct)
+
+
+class L1TriggerAnalysis(object):
+  __metaclass__ = Plottable
+  registerMe = False
+
+  @classmethod
+  def draw(cls, event):
+    raise NotImplementedError("{}.draw() should be implemented".format(cls.__name__))
+
+  @classmethod
+  def region_draw(cls, event):
+    raise NotImplementedError("{}.region_draw() should be implemented".format(cls.__name__))
