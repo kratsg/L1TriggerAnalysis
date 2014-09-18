@@ -76,6 +76,7 @@ def match_jets(oJets=[], tJets=[]):
     matched_jets.append([oJet, closest_tJet])
   return matched_jets
 
+
 def isolation_condition(leading_jet, jets):
   for jet in jets:
     # skip leading jet
@@ -122,6 +123,8 @@ datatype = [('offline_rho', 'float32'),
 dataLoadTimes = []
 rowEvalTimes = []
 rhoCalcTimes = []
+oEventLoadTimes = []
+tEventLoadTimes = []
 
 allBranches = [rho_column_name, vertices_column_name, weight_column_name] + offline_column_names + gTower_column_names + trig_L1_et_column_names
 
@@ -138,6 +141,7 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
     t2 = time.time()
     # revive the record array
     event = np.array(row)
+    t4 = time.time()
     # jetPt, jetM, jetEta, jetPhi, nsj, tau1, tau2, tau3, split12, split23, split34, subjetsIndex, subjetsPt = event
     oEvent = OfflineJets.Event(event=[event[col].tolist() for col in offline_column_names])
 
@@ -149,6 +153,9 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
     if not isolation_condition(oEvent.jets[0], oEvent.jets):
       continue
 
+    oEventLoadTimes.append(time.time() - t4)
+
+    t5 = time.time()
     # at this point, offline event filtering is done, so we go to trigger data
     gTowerData = []
     for col in gTower_column_names:
@@ -180,8 +187,9 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
 
     del event  # extracted all necessary data from it
 
-    t3 = time.time()
     tEvent = gTowers.TowerEvent(event=gTowerData, seed_filter=seed_filter)
+    tEventLoadTimes.append(time.time() - t5)
+    t3 = time.time()
 
     del gTowerData  # converted that information into tEvent
 
@@ -229,6 +237,8 @@ print "Finished job %d in:\n\t Wall time: %0.2f s \n\t Clock Time: %0.2f s" % (a
 filename_ending = 'unweighted_seed%d_noise%d_signal%d_digitization%d_process%d' % (args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization, args.process_num)
 pickle.dump(np.hstack(paired_jets), file(write_file('data/seed%d/matched_jets_%s.pkl' % (args.seedEt_thresh, filename_ending)), 'w+'))
 print len(paired_jets)
-print "dataLoadTimes", np.mean(dataLoadTimes), np.std(dataLoadTimes)
-print "rowEvalTimes", np.mean(rowEvalTimes), np.std(rowEvalTimes)
-print "rhoCalcTimes", np.mean(rhoCalcTimes), np.std(rhoCalcTimes)
+print "dataLoadTimes", np.mean(dataLoadTimes), np.std(dataLoadTimes), len(dataLoadTimes)
+print "rowEvalTimes", np.mean(rowEvalTimes), np.std(rowEvalTimes), len(rowEvalTimes)
+print "\toEventLoadTimes", np.mean(oEventLoadTimes), np.std(oEventLoadTimes), len(oEventLoadTimes)
+print "\ttEventLoadTimes", np.mean(tEventLoadTimes), np.std(tEventLoadTimes), len(tEventLoadTimes)
+print "\trhoCalcTimes", np.mean(rhoCalcTimes), np.std(rhoCalcTimes), len(rhoCalcTimes)
