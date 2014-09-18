@@ -4,14 +4,15 @@ import numpy as np
 import matplotlib.pyplot as pl
 from matplotlib.colors import LogNorm
 
-#for getting FWHM
-from scipy.interpolate import UnivariateSpline, interp1d
+# for getting FWHM
+from scipy.interpolate import UnivariateSpline
 
-#for getting error function fitting in diff/int curves
+# for getting error function fitting in diff/int curves
 from scipy.optimize import curve_fit
 from scipy.special import erf, erfinv
 
 from matplotlib.ticker import FuncFormatter
+
 
 class PlotHelpers(object):
   def __init__(self, **kwargs):
@@ -19,7 +20,7 @@ class PlotHelpers(object):
     self.towerThrStr = kwargs.get('towerThrStr', None)
     self.seedCutStr = kwargs.get('seedCutStr', None)
     self.noiseCutStr = kwargs.get('noiseCutStr', None)
-    self.figsize = kwargs.get('figsize', (16, 12) )
+    self.figsize = kwargs.get('figsize', (16, 12))
     self.labelsize = kwargs.get('labelsize', 30)
     self.titlesize = kwargs.get('titlesize', 36)
     self.ticksize = kwargs.get('ticksize', 26)
@@ -27,23 +28,24 @@ class PlotHelpers(object):
     self.light_grey = np.array([float(200)/float(255)]*3)
     self.cmap = kwargs.get('cmap', pl.cm.hot_r)
     self.textprops = dict(boxstyle='round', facecolor=self.light_grey, alpha=0.5, linewidth=0.0)
-    self.regions = {'all': [-4.9,  4.9],\
-                        1: [-1.6,  0.0],\
-                        2: [ 0.0,  1.6],\
-                        3: [-4.9, -1.6],\
-                        4: [ 1.6,  4.9],\
-                     '3a': [-2.5, -1.6],\
-                     '3b': [-3.2, -2.5],\
-                     '3c': [-4.9, -3.2],\
-                     '4a': [ 1.6,  2.5],\
-                     '4b': [ 2.5,  3.2],\
-                     '4c': [ 3.2,  4.9]}
+    self.regions = {'all': [-4.9,  4.9],
+                    1: [-1.6,  0.0],
+                    2: [+0.0,  1.6],
+                    3: [-4.9, -1.6],
+                    4: [+1.6,  4.9],
+                    '3a': [-2.5, -1.6],
+                    '3b': [-3.2, -2.5],
+                    '3c': [-4.9, -3.2],
+                    '4a': [+1.6,  2.5],
+                    '4b': [+2.5,  3.2],
+                    '4c': [+3.2,  4.9]}
     self.colors = ['b', 'r', 'c', 'm', 'y', 'k']
+    self.markers = ['o', 'v', '^', 's', 'D', '8']
 
-    self.labels = {'rho.gFEX': r'gFEX $\rho$ [GeV/area]',\
-                   'rho.offline': r'Offline $\rho$ [GeV/area]',\
-                   'vxp.number': r'Number of primary vertices (vxp_nTracks $\geq$ 2)',\
-                   'gTower.Et': r'$E_T^\mathrm{gTower}$ [GeV]',\
+    self.labels = {'rho.gFEX': r'gFEX $\rho$ [GeV/area]',
+                   'rho.offline': r'Offline $\rho$ [GeV/area]',
+                   'vxp.number': r'Number of primary vertices (vxp_nTracks $\geq$ 2)',
+                   'gTower.Et': r'$E_T^\mathrm{gTower}$ [GeV]',
                    'gTower.multiplicity': 'gTower multiplicity / event'}
 
   def btwn(self, val, a, b):
@@ -52,7 +54,7 @@ class PlotHelpers(object):
     elif a is None:
       return (val < b)
     else:
-      return (a <= val)&(val < b)
+      return (a <= val) & (val < b)
 
   def region_cut(self, data, region):
     return self.btwn(data, *self.regions[region])
@@ -76,7 +78,7 @@ class PlotHelpers(object):
       if w == 1.0:
         errors.append(0.0)
       else:
-        errors.append( (np.abs( (1.-2.*w + w**2.)/den**2.))**0.5/2. )
+        errors.append((np.abs((1.-2.*w + w**2.)/den**2.))**0.5/2.)
     return errors
 
   def _profile(self, xbins, xvals, yvals):
@@ -102,11 +104,11 @@ class PlotHelpers(object):
 
   def FWHM(self, bins, vals):
     spline = UnivariateSpline(bins[:-1]+np.diff(bins)/2., vals-np.max(vals)/2., s=0)
-    roots = spline.roots() # find the roots
+    roots = spline.roots()  # find the roots
     r1, r2 = roots[0], roots[-1]
     return np.abs(r1-r2)
 
-  #this is a wrapper around file strings to ensure the directory exists
+  # this is a wrapper around file strings to ensure the directory exists
   def write_file(self, f):
     d = os.path.dirname(f)
     if not os.path.exists(d):
@@ -119,13 +121,13 @@ class PlotHelpers(object):
     legend.get_frame().set_linewidth(0.0)
 
   def add_description(self, fig, ax, align='tl', strings=[]):
-    if align[0]=='t':
+    if align[0] == 't':
       ypos = 0.95
-    elif align[0]=='b':
+    elif align[0] == 'b':
       ypos = 0.05
-    if align[1]=='l':
+    if align[1] == 'l':
       xpos = 0.05
-    elif align[1]=='r':
+    elif align[1] == 'r':
       xpos = 0.95
 
     va = {'t': 'top', 'b': 'bottom'}[align[0]]
@@ -157,7 +159,7 @@ class PlotHelpers(object):
   def add_grid(self, fig, ax):
     ax.grid(True, which='both', linewidth=3, linestyle='--', alpha=0.5)
 
-  def add_labels(self, fig, ax, xlabel = None, ylabel = None, title = None):
+  def add_labels(self, fig, ax, xlabel=None, ylabel=None, title=None):
     if xlabel is not None:
       ax.set_xlabel(xlabel, fontsize=self.labelsize)
     if ylabel is not None:
@@ -171,7 +173,7 @@ class PlotHelpers(object):
     cbar.ax.tick_params(labelsize=self.ticksize)
 
   def to_file(self, fig, ax, filename, transparent=True):
-    fig.savefig( self.write_file(filename), bbox_inches='tight', transparent=transparent)
+    fig.savefig(self.write_file(filename), bbox_inches='tight', transparent=transparent)
 
   def corr2d(self, x, y, bins_x, bins_y, label_x, label_y, xlim=None, ylim=None, profile_x=False, profile_y=False, title=None, strings=[], align='bl', ticks=None):
     corr = np.corrcoef(x, y)[0, 1]
@@ -207,7 +209,7 @@ class PlotHelpers(object):
 
     # *_noPileup means the data with the pileup subtracted
     hist_efficiency_den, _ = np.histogram(data[np.where(den_cut)], bins=bins)
-    hist_efficiency_num, _ = np.histogram(data[np.where(den_cut&num_cut)], bins=bins)
+    hist_efficiency_num, _ = np.histogram(data[np.where(den_cut & num_cut)], bins=bins)
 
     nonzero_bins = np.where(hist_efficiency_den != 0)
     # compute integral and differential curves
