@@ -53,7 +53,7 @@ def profile_y(xbins, xvals, yvals):
 
 def profile_x(ybins, yvals, xvals):
   return profile(ybins, yvals, xvals)
- 
+
 filename_id = "seed%d_noise%d_signal%d_digitization%d" % (args.seedEt_thresh, args.noise_filter, args.tower_thresh, args.digitization)
 filename = "data/seed%d/leading_jets_%s.pkl" % (args.seedEt_thresh, filename_id)
 
