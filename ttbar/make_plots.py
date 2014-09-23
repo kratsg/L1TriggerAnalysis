@@ -81,65 +81,11 @@ bins_efficiency = np.arange(0., 2000., 10.)
 width_efficiency = np.array([x - bins_efficiency[i-1] for i, x in enumerate(bins_efficiency)][1:])
 bins_multiplicity = np.arange(0.0, 100.0, 2.0)
 
-bins_rho = np.arange(0., 100., 1.)
+bins_rho = np.arange(0., 70., 0.5)
 bins_vertices = np.arange(0., 100., 1.)
 
 startTime_wall = time.time()
 startTime_processor = time.clock()
-
-try:
-  print "\t", "gTower multiplicity"
-  # multiplicity on gTowers
-  fig, ax = pl.subplots(figsize=helpers.figsize)
-
-  where = np.where(helpers.btwn(data['oJet.pt'], 0., None))
-  ax.plot(bins_multiplicity[:-1], np.cumsum(np.sum(data['gTower_distribution'][where]).astype(float)[::-1])[::-1]/where[0].size,
-          linestyle='steps-post',
-          alpha=0.75,
-          color=helpers.colors[0],
-          label='no cuts\n{:d} events'.format(where[0].size),
-          linewidth=helpers.linewidth)
-
-  where = np.where(helpers.btwn(data['oJet.pt'], 100., 150.))
-  ax.plot(bins_multiplicity[:-1], np.cumsum(np.sum(data['gTower_distribution'][where]).astype(float)[::-1])[::-1]/where[0].size,
-          linestyle='steps-post',
-          alpha=0.75,
-          color=helpers.colors[1],
-          label='$100 < p_T^\mathrm{{oJet}} < 150$\n{:d} events'.format(where[0].size),
-          linewidth=helpers.linewidth)
-
-  where = np.where(helpers.btwn(data['oJet.pt'], 150., 200.))
-  ax.plot(bins_multiplicity[:-1], np.cumsum(np.sum(data['gTower_distribution'][where]).astype(float)[::-1])[::-1]/where[0].size,
-          linestyle='steps-post',
-          alpha=0.75,
-          color=helpers.colors[2],
-          label='$150 < p_T^\mathrm{{oJet}} < 200$\n{:d} events'.format(where[0].size),
-          linewidth=helpers.linewidth)
-
-  where = np.where(helpers.btwn(data['oJet.pt'], 200., 250.))
-  ax.plot(bins_multiplicity[:-1], np.cumsum(np.sum(data['gTower_distribution'][where]).astype(float)[::-1])[::-1]/where[0].size,
-          linestyle='steps-post',
-          alpha=0.75,
-          color=helpers.colors[3],
-          label='$200 < p_T^\mathrm{{oJet}} < 250$\n{:d} events'.format(where[0].size),
-          linewidth=helpers.linewidth)
-
-  helpers.add_legend(fig, ax)
-  helpers.add_labels(fig, ax,
-                     xlabel='$E_T^\mathrm{gTower}$ [GeV]',
-                     ylabel='gTower multiplicity / event')
-  helpers.add_grid(fig, ax)
-  helpers.add_description(fig, ax,
-                          align='bl',
-                          strings=[helpers.dataSetStr])
-  ax.set_yscale('log', nonposy='clip')
-  ax.set_ylim((0.0, 1284.0))
-  helpers.to_file(fig, ax, 'plots/multiplicity/{}.png'.format(filename_id))
-  pl.close(fig)
-except:
-  print "Could not make multiplicity plot"
-  pl.close(fig)
-  pass
 
 # this will be used to make resolution plots below line 200
 resolution = (data['tJet.et']/data['oJet.pt']) - 1.0
@@ -148,9 +94,9 @@ resolution_subtracted = (tJetEt_subtracted/data['oJet.pt']) - 1.0
 for i, cut in regions.iteritems():
   region = 'region_%s' % i
   region_cut = np.where(cut)
-
+  print region
   try:
-    print "\t", "corrected Et versus tJetEt"
+    print "\t", "correction Et versus tJetEt"
     # make a correlation of corrected Et versus trigger jet Et
     x = data['tJet.et'][region_cut]
     y = tJetEt_correction[region_cut]
@@ -167,7 +113,7 @@ for i, cut in regions.iteritems():
 
     pl.close(fig)
   except:
-    print "Error for {}: could not make correlation of corrected Et versus trigger jet Et".format(region)
+    print "\t", "Error for {}: could not make correlation of corrected Et versus trigger jet Et".format(region)
     pl.close(fig)
     pass
 
@@ -186,7 +132,7 @@ for i, cut in regions.iteritems():
 
     pl.close(fig)
   except:
-    print "Error for {}: could not make jet energy correlation".format(region)
+    print "\t", "Error for {}: could not make jet energy correlation".format(region)
     pl.close(fig)
     pass
 
@@ -204,15 +150,16 @@ for i, cut in regions.iteritems():
     helpers.to_file(fig, ax, 'plots/jet_energy_correlation/{}_noPileup_region{}.png'.format(filename_id, i))
     pl.close(fig)
   except:
-    print "Error for {}: could not make jet energy correlation (no Pileup)".format(region)
+    print "\t", "Error for {}: could not make jet energy correlation (no Pileup)".format(region)
     pl.close(fig)
     pass
 
   # we want to make resolution plots now
   # note that we ignore trigger jets that are negative or less than zero
 
+  print "\t", "making resolution plots"
   try:
-    print "\t", "oJetPt versus resolution"
+    print "\t"*2, "oJetPt versus resolution"
     x = data['oJet.pt'][np.where(tJet_exists_subtracted & cut)]
     y = resolution[np.where(tJet_exists_subtracted & cut)]
     bins_x = bins_y = 100
@@ -225,12 +172,12 @@ for i, cut in regions.iteritems():
     helpers.to_file(fig, ax, 'plots/resolution/{}_resolution_PtOffline_region{}.png'.format(filename_id, i))
     pl.close(fig)
   except:
-    print "Error for {}: could not make resolution correlation".format(region)
+    print "\t"*2, "Error for {}: could not make resolution correlation".format(region)
     pl.close(fig)
     pass
 
   try:
-    print "\t", "oJetPt versus corrected resolution"
+    print "\t"*2, "oJetPt versus corrected resolution"
     x = data['oJet.pt'][np.where(tJet_exists_subtracted & cut)]
     y = resolution_subtracted[np.where(tJet_exists_subtracted & cut)]
     bins_x = bins_y = 100
@@ -243,12 +190,13 @@ for i, cut in regions.iteritems():
     helpers.to_file(fig, ax, 'plots/resolution/{}_resolution_PtOffline_withRhoSubtraction_region{}.png'.format(filename_id, i))
     pl.close(fig)
   except:
-    print "Error for {}: could not make resolution correlation (with Rho subtraction)".format(region)
+    print "\t", "Error for {}: could not make resolution correlation (with Rho subtraction)".format(region)
     pl.close(fig)
     pass
 
+  print "\t", "making y-projection of resolution plots"
   try:
-    print "\t", "y-projection slices of resolution"
+    print "\t"*2, "y-projection slices of resolution"
     # y projection slices
     pl_res_proj = {}
     fig, ax = pl.subplots(figsize=helpers.figsize)
@@ -269,12 +217,12 @@ for i, cut in regions.iteritems():
     helpers.to_file(fig, ax, 'plots/resolution/{}_resolution_PtOffline_projection_region{}.png'.format(filename_id, i))
     pl.close(fig)
   except:
-    print "Error for {}: could not make resolution projection".format(region)
+    print "\t"*2, "Error for {}: could not make resolution projection".format(region)
     pl.close(fig)
     pass
 
   try:
-    print "\t", "y-projection slices of corrected resolution"
+    print "\t"*2, "y-projection slices of corrected resolution"
     pl_res_proj = {}
     fig, ax = pl.subplots(figsize=helpers.figsize)
     for oJetPt_cuts in [(170., 180.), (200., 220.), (300., 350.)]:
@@ -294,18 +242,18 @@ for i, cut in regions.iteritems():
     helpers.to_file(fig, ax, 'plots/resolution/{}_resolution_PtOffline_withRhoSubtraction_projection_region{}.png'.format(filename_id, i))
     pl.close(fig)
   except:
-    print "Error for {}: could not make resolution projection (no Pileup)".format(region)
+    print "\t"*2, "Error for {}: could not make resolution projection (no Pileup)".format(region)
     pl.close(fig)
     pass
 
   points_x, mean_y, err_y = helpers.profile_y(np.arange(0., 1500., 10.), data['tJet.et'][region_cut], tJetEt_correction[region_cut])
   f = interp1d(points_x, mean_y, bounds_error=False, fill_value=0., kind='cubic')
-  print region
 
+  print "\t", "efficiency curves using tJet Et cut in numerator"
   for tJetEt_cut in [0., 140.]:
     # ADD IN np.interp(tJetEt_cut, trigger_Et, rho*A) and shift subtracted eff curves
     eff_curve_shift = f([tJetEt_cut])[0]
-    print "\t tJetEt_cut = {}, eff_curve_shift = {}".format(tJetEt_cut, eff_curve_shift)
+    print "\t"*2, "tJetEt_cut = {}, eff_curve_shift = {}".format(tJetEt_cut, eff_curve_shift)
     # eff_curve_shift = np.interp(tJetEt_cut, trigger_jet_Et[region], trigger_jet_Et_correction[region])
     tJetEtThrStr = r'$E_T^\mathrm{{gFEX\ jet}} >\ {:0.2f}\ \mathrm{{GeV}}$'.format(tJetEt_cut)
 
@@ -347,7 +295,7 @@ for i, cut in regions.iteritems():
     pl.close(fig)
 
 # buildin plots for rho
-print "\t", "rho histograms"
+print "rho histograms"
 fig, ax = pl.subplots(figsize=helpers.figsize)
 ax.hist(data['offline_rho'], bins=bins_rho, stacked=True, fill=False, histtype='step', color='b', label=r'offline Kt4LCTopo', linewidth=helpers.linewidth)
 ax.hist(data['gFEX_rho_all'], bins=bins_rho, stacked=True, fill=False, histtype='step', color='r', label=helpers.region_legend('all'), linewidth=helpers.linewidth)
@@ -362,7 +310,7 @@ helpers.add_description(fig, ax, align='br', strings=[helpers.dataSetStr, helper
 helpers.to_file(fig, ax, "plots/pileup/{}_rho.png".format(filename_id))
 pl.close(fig)
 
-print "\t", "delta rho histograms"
+print "delta rho histograms"
 fig, ax = pl.subplots(figsize=helpers.figsize)
 diff21 = data['gFEX_rho_2'] - data['gFEX_rho_1']
 diff43 = data['gFEX_rho_4'] - data['gFEX_rho_3']
@@ -386,7 +334,7 @@ ax.set_yscale('log', nonposy='clip')
 helpers.to_file(fig, ax, "plots/pileup/{}_deltaRho_logy.png".format(filename_id))
 pl.close(fig)
 
-print "\t", "vxpN versus oRho"
+print "vxpN versus oRho"
 x = data['vxp_n']
 y = data['offline_rho']
 bins_x = bins_vertices
@@ -400,12 +348,12 @@ fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, align='tr',
 helpers.to_file(fig, ax, 'plots/pileup/{}_offlineRho.png'.format(filename_id))
 pl.close(fig)
 
-
+print "vxpN(1) / oRho(2) versus"
 for col, legend in zip(['gFEX_rho_all', 'gFEX_rho_1', 'gFEX_rho_2', 'gFEX_rho_3', 'gFEX_rho_4'],
                        ['all', 1, 2, 3, 4]):
 
   try:
-    print "\t", "vxpN versus {}".format(col)
+    print "(1)\t{}".format(col)
     x = data['vxp_n']
     y = data[col]
     bins_x = bins_vertices
@@ -424,7 +372,7 @@ for col, legend in zip(['gFEX_rho_all', 'gFEX_rho_1', 'gFEX_rho_2', 'gFEX_rho_3'
     pass
 
   try:
-    print "\t", "oRho versus {}".format(col)
+    print "(2)\t{}".format(col)
     x = data['offline_rho']
     y = data[col]
     bins_x = bins_rho

@@ -85,15 +85,18 @@ class PlotHelpers(object):
     # this finds the difference between successive bins and then halves it, and
     #     then adds it back to the bins to get xpoints
     # gets the average yvalue for each of the xbins
-    xpoints = xbins[:-1] + np.array([v-xbins[i-1] for i, v in enumerate(xbins)][1:])/2.
+    shift = np.array([v-xbins[i-1] for i, v in enumerate(xbins)])/2.
+    # assume that the shift is constant
+    shift[0] = shift[-1]
+    # determine the xpoints by shifting
+    xpoints = xbins + shift
     # this digitizes our samples by figuring out which xbin each xval belongs to
-    digitized = np.digitize(xvals, xbins)
-    ymean = [np.mean(yvals[np.where(digitized == i)]) for i in np.arange(1, len(xbins)+1)][1:]
-    yerr  = [np.std(yvals[np.where(digitized == i)]) for i in np.arange(1, len(xbins)+1)][1:]
-    # filter out missing values
-    nonnan = np.where(~np.isnan(ymean))
-    xpoints = np.array(xpoints)[nonnan]
-    ymean = np.array(ymean)[nonnan]
+    digitized = np.digitize(xvals, xbins)  # bins by bins[i-1] <= x < bins[i], left inclusive, right exclusive
+    num_yvals = np.array([len(yvals[np.where(digitized == i)]) for i in np.arange(1, len(xbins)+1)])
+    # filter out missing values by num_yvals > 0
+    xpoints = xpoints[np.where(num_yvals > 0)]
+    ymean = np.array([np.mean(yvals[np.where(digitized == i)]) for i in np.arange(1, len(xbins)+1)[np.where(num_yvals > 0)]])
+    yerr  = np.array([np.std(yvals[np.where(digitized == i)]) for i in np.arange(1, len(xbins)+1)[np.where(num_yvals > 0)]])
     return xpoints, ymean, yerr
 
   def profile_y(self, xbins, xvals, yvals):
@@ -115,8 +118,8 @@ class PlotHelpers(object):
       os.makedirs(d)
     return f
 
-  def add_legend(self, fig, ax):
-    legend = ax.legend(fancybox=True, framealpha=0.75, fontsize=self.labelsize)
+  def add_legend(self, fig, ax, **kwargs):
+    legend = ax.legend(fancybox=True, framealpha=0.75, fontsize=self.labelsize, **kwargs)
     legend.get_frame().set_facecolor(self.light_grey)
     legend.get_frame().set_linewidth(0.0)
 
@@ -157,7 +160,7 @@ class PlotHelpers(object):
     return FuncFormatter(self.latex_float)
 
   def add_grid(self, fig, ax):
-    ax.grid(True, which='both', linewidth=3, linestyle='--', alpha=0.5)
+    ax.grid(True, which='major', linewidth=3, linestyle='--', alpha=0.5)
 
   def add_labels(self, fig, ax, xlabel=None, ylabel=None, title=None):
     if xlabel is not None:
@@ -166,7 +169,7 @@ class PlotHelpers(object):
       ax.set_ylabel(ylabel, fontsize=self.labelsize)
     if title is not None:
       ax.set_title(title, fontsize=self.titlesize)
-    ax.tick_params(axis='both', which='major', labelsize=self.ticksize)
+    ax.tick_params(axis='both', which='both', labelsize=self.ticksize)
 
   def format_cbar(self, cbar, label='number density'):
     cbar.set_label(label, fontsize=self.labelsize, labelpad=40)
