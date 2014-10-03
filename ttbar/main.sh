@@ -5,7 +5,10 @@ export HOME=$(pwd)
 export PROOFANADIR=$(pwd)
 #ROOT STUFF
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh
+
+# run ALRB but no output
+source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh --quiet
+# set up ROOT with python-2.7
 localSetupROOT 5.34.18-x86_64-slc6-gcc4.7 --skipConfirm
 
 # extract to $HOME because that's where it looks
@@ -14,6 +17,13 @@ tar -zxf local.tar.gz -C $HOME
 # export the .local directory under $HOME and prepend to $PYTHONPATH
 #   by default, python should already search the directory, we're being explicit
 export PYTHONPATH=$HOME/.local/lib/python2.7/site-packages:$PYTHONPATH
+
+# export the proxy file so that we have X509 access
+#   note that this particular environment is set in the `config`
+export X509_USER_PROXY=$(pwd)/$X509_USER_PROXY_FILENAME
+
+# print directory listing just for sanity
+ls -lavh
 
 printf "Start time: "; /bin/date 
 printf "Job is running on node: "; /bin/hostname 

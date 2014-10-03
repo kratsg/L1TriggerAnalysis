@@ -1,0 +1,105 @@
+# prefix is prepended to all files listed in datasets
+prefix: root://faxbox.usatlas.org//user/kratsg/LArStudies/
+# global numEvents per file, can be overriden by specifying numEvents inline
+numEvents: 10000
+# global numJobs per file, can be overriden by specifying numJobs inline
+numJobs: 10
+# list of files to use
+datasets: 
+  -
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_0.root
+   numJobs: 13
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_1.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_3.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_4.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_5.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_6.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_7.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_8.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_9.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_10.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_11.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_12.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_13.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_14.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_15.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_16.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_17.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_18.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_19.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_20.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_21.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_22.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_23.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_24.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_25.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_26.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_27.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_28.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_29.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_30.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_31.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_32.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_33.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_34.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_35.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_36.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_37.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_38.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_39.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_40.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_41.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_42.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_43.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_44.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_45.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_46.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_47.root
+  - 
+   file: PileupSkim_PowhegPythia_P2011C_ttbar_48.root

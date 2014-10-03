@@ -1,0 +1,90 @@
+# prefix is prepended to all files listed in datasets
+prefix: root://faxbox.usatlas.org//user/kratsg/LArStudies/
+# global numEvents per file, can be overriden by specifying numEvents inline
+numEvents: 9600
+# global numJobs per file, can be overriden by specifying numJobs inline
+numJobs: 10
+# list of files to use
+datasets: 
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_0.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_1.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_2.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_3.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_4.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_5.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_6.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_7.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_8.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_9.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_10.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_11.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_12.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_13.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_14.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_15.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_16.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_17.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_18.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_19.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_20.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_21.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_22.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_23.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_24.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_25.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_26.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_27.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_28.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_29.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_30.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_31.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_32.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_33.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_34.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_35.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_36.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_37.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_38.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_39.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ1W_40.root

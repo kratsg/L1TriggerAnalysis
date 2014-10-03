@@ -1,0 +1,28 @@
+# prefix is prepended to all files listed in datasets
+prefix: root://faxbox.usatlas.org//user/kratsg/LArStudies/
+# global numEvents per file, can be overriden by specifying numEvents inline
+numEvents: 9600
+# global numJobs per file, can be overriden by specifying numJobs inline
+numJobs: 10
+# list of files to use
+datasets: 
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ2W_0.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ2W_1.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ2W_2.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ2W_3.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ2W_4.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ2W_5.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ2W_6.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ2W_7.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ2W_8.root
+  -
+   file: PileupSkim_Pythia8_AU2CT10_jetjet_JZ2W_9.root

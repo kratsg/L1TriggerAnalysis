@@ -1,0 +1,10 @@
+# prefix is prepended to all files listed in datasets
+prefix: root://faxbox.usatlas.org//user/kratsg/LArStudies/
+# global numEvents per file, can be overriden by specifying numEvents inline
+numEvents: 10000
+# global numJobs per file, can be overriden by specifying numJobs inline
+numJobs: 10
+# list of files to use
+datasets: 
+  -
+   file: PileupSkim_Pythia8_AU2CTEQ6L1_ZH125_nunubb.root
