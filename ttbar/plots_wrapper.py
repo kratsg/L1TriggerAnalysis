@@ -232,7 +232,10 @@ class PlotHelpers(object):
     # binomial errors s^2 = n * p * q
     errors_eff = self.binomial_errors(hist_eff_curve, numerator, denominator)
 
-    w = self.fit_func(xpoints_efficiency[nonzero_bins], hist_eff_curve, p0=p0)
+    try:
+      w = self.fit_func(xpoints_efficiency[nonzero_bins], hist_eff_curve, p0=p0)
+    except TypeError:  # fix later
+      w = (-1,-1,-1,-1)
     ax.errorbar(xpoints_efficiency[nonzero_bins], hist_eff_curve, yerr=errors_eff, ecolor='black', label='{}\n{}'.format(label, self.make_turnon_label(w)), linewidth=self.linewidth)
     return xpoints_efficiency, hist_eff_curve, errors_eff, nonzero_bins, w
 
