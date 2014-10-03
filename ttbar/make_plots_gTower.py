@@ -8,9 +8,6 @@ import time
 import sys
 from plots_wrapper import PlotHelpers
 
-# this is to shift labels to be centered
-import matplotlib.ticker as ticker
-
 # locally load the config file
 sys.path.insert(0, '.')
 import plot_configs as plotConfigs
@@ -50,34 +47,7 @@ towerThrStr = '$\\rho\left(E_T^\mathrm{tower} <\ %d\ \mathrm{GeV}\\right)$' % ar
 
 helpers = PlotHelpers(dataSetStr=dataSetStr, seedCutStr=seedCutStr, noiseCutStr=noiseCutStr, towerThrStr=towerThrStr)
 
-tJetEt_correction = np.zeros(data.size)
-tJetEt_subtracted = np.zeros(data.size)
-# the new regions aren't working because there are not enough jets in them!!!
-regions = {1: '', 2: '', 3: '', 4: '', '3a': '', '3b': '', '3c': '', '4a': '', '4b': '', '4c': ''}
-
-for region in regions.keys():
-  region_cut = helpers.region_cut(data['tJet.eta'], region)
-  regions[region] = region_cut
-
-  if region not in [1, 2, 3, 4]:
-    region_parsed = int(region[0])
-  else:
-    region_parsed = region
-
-  if region_parsed == 3:
-    rho = 'gFEX_rho_1'
-  elif region_parsed == 4:
-    rho = 'gFEX_rho_2'
-  else:
-    rho = 'gFEX_rho_{:d}'.format(region_parsed)
-
-  region_cut = np.where(region_cut)
-
-  tJetEt_correction[region_cut] = data['tJet.area'][region_cut]*data[rho][region_cut]
-  tJetEt_subtracted[region_cut] = data['tJet.et'][region_cut] - tJetEt_correction[region_cut]
-
 tJet_exists = data['tJet.et'] > 0.
-tJet_exists_subtracted = tJetEt_subtracted > 0.
 
 bins_efficiency = np.arange(0., 2000., 10.)
 width_efficiency = np.array([x - bins_efficiency[i-1] for i, x in enumerate(bins_efficiency)][1:])
@@ -143,7 +113,7 @@ except:
   pl.close(fig)
   pass
 
-valid_gJets = np.where(data['tJet.et'] != 0)
+valid_gJets = np.where(tJet_exists)
 
 try:
   print "running out profiles for gTowers"
@@ -290,6 +260,54 @@ try:
 except:
   print "Error for {}: could not make correlation plot between leading gTower and offline subjet Pt".format("first subjet")
   raise
+
+# the new regions aren't working because there are not enough jets in them!!!
+regions = {1: '', 2: '', 3: '', 4: '', '3a': '', '3b': '', '3c': '', '4a': '', '4b': '', '4c': ''}
+
+for region in regions.keys():
+  region_cut = helpers.region_cut(data['tJet.eta'], region)
+  regions[region] = region_cut
+
+
+for gTowerEt_cut in [0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50.]:
+  oJetsubjets_count = np.array(map(lambda x: np.sum(x > 20.0), data['oJet.subjetsPt']))
+  gTowersnsj_count = np.sum(all_gTower_Et > gTowerEt_cut, axis=0)
+  for oJetnsj_cut in [2, 3]:
+    fig, ax = pl.subplots(figsize=helpers.figsize)
+    pl_eff_diff = {}
+    # find jets with exactly N subjets with Pt >= 20.0 GeV
+    den_cut = oJetsubjets_count == oJetnsj_cut
+    # now apply the numerator cut and loop over to add each turnon curve
+    for gTowerN in [1, 2, 3]:
+      pickleData = pl_eff_diff['gTowerN{}'.format(gTowerN)] = {}
+      gTowerEtThrStr = r'$N(E_T^\mathrm{{gFEX\ tower}} >\ {:0.2f}\ \mathrm{{GeV}})$'.format(gTowerEt_cut)
+      oJetnsjCutStr = r'$N(P_T^\mathrm{{oJet\ subjet}} >\ 20 \ \mathrm{{GeV}}) = {:d}$'.format(oJetnsj_cut)
+      num_cut = gTowersnsj_count >= gTowerN
+
+      # helpers.add_turnon() returns xpoints_efficiency, hist_eff_curve, errors_eff, nonzero_bins, w
+      x, y, e, n, w = helpers.add_turnon(fig, ax, data=gTowersnsj_count, den_cut=den_cut[np.where(tJet_exists)], num_cut=num_cut, bins=np.arange(6), label=r'$N(\mathrm{{gTowerEt}}) \geq {}$'.format(gTowerN), p0=(1., 50., gTowerEt_cut, 0.5))
+      pickleData['xdata'] = x
+      pickleData['ydata'] = y
+      pickleData['xerr'] = 1.0
+      pickleData['yerr'] = e
+      pickleData['nonzero_bins'] = n
+      pickleData['fit'] = w
+
+    ax.set_xlim((0.0, 6.0))
+    ax.set_ylim((0.0, 1.1))
+
+    ax.set_xticklabels('')  # clear major tick labels on y-axis
+    # add the labels on the minor ticks
+    ax.set_xticks([1.5, 2.5, 3.5, 4.5, 5.5], minor=True)
+    ax.set_xticklabels(['1', '2', '3', '4', '5'], minor=True)
+
+    helpers.add_labels(fig, ax, xlabel=r'$N(E_T^\mathrm{{gTower}} > {:0.2f}\ \mathrm{{GeV}}$'.format(gTowerEt_cut), ylabel='Trigger Efficiency - Differential')
+    helpers.add_description(fig, ax, align='br', strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr, gTowerEtThrStr, oJetnsjCutStr])
+    helpers.add_legend(fig, ax)
+    helpers.add_grid(fig, ax)
+    pickle.dump(pl_eff_diff, file(helpers.write_file('plots/pickle/matched_differential_{}_gTowerEt{:0.0f}.pkl'.format(filename_id, gTowerEt_cut)), 'w+'))
+    helpers.to_file(fig, ax, 'plots/differential/{}_gTowerEt{:0.0f}_oJetnsj{:d}.png'.format(filename_id, gTowerEt_cut, oJetnsj_cut))
+    pl.close(fig)
 
 endTime_wall      = time.time()
 endTime_processor = time.clock()
