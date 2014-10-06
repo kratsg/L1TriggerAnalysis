@@ -1,1 +1,1 @@
-../ttbar/main.sh
+../base/main.sh

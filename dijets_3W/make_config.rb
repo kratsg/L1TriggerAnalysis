@@ -1,1 +1,1 @@
-../ttbar/make_config.rb
+../base/make_config.rb

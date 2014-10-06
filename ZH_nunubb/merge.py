@@ -1,1 +1,1 @@
-../ttbar/merge.py
+../base/merge.py
