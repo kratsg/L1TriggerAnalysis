@@ -14,7 +14,7 @@ One can quickly scaffold a new physics analysis by running
 which will set up a new directory `newAnalysis/` with the correct symlinked files and example configuration files copied over for you to edit.
 
 ## File Structure
-At the top level, there are multiple folders for each of the physics analysis that is to be done. The same code should apply to all of them, apart from configuration files [datasets.yml](base/datasets.yml) and [plots_config.py](base/plots_config.py). The former defines the list of files for your jobs to run over, and the latter defines extra configs for [make_plots.py](base/make_plots.py). As of right now, the only configuration for plotting is the `dataSetStr` which is placed on every plot made.
+At the top level, there are multiple folders for each of the physics analysis that is to be done. The same code should apply to all of them, apart from configuration files [datasets.yml](base/datasets.yml) and [plot_configs.py](base/plot_configs.py). The former defines the list of files for your jobs to run over, and the latter defines extra configs for [make_plots.py](base/make_plots.py). As of right now, the only configuration for plotting is the `dataSetStr` which is placed on every plot made.
 
 To generate a Condor config file, you must run
 ```
