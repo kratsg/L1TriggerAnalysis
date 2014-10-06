@@ -59,5 +59,17 @@ Each job will run over 1000 events in the file. Like `numEvents`, you can also s
 ### Setting up Plot configurations
 I also provide a `plot_configs.py` which only contains one variable right now, the `dataSetStr`. This is just a LaTeX string that gets rendered when making plots (such as for TTbar or ZH->nu nu bbar). Matplotlib can parse it correctly with standard LaTeX, but if you need help making this string, contact [Giordon Stark](https://github.com/kratsg) with questions, or [file an issue](https://github.com/kratsg/L1TriggerAnalysis/issues/new).
 
+### Making plots
+Now, making plots requires a specific environment. The best way to do this (at least the way I've done it) is to define a bash function which sets up ROOT and then updates the python path. First you need to extract the `local.tar.gz` file:
+```bash
+tar -xzvf local.tar.gz
+```
+and then you just need to run
+```bash
+localSetupROOT 5.34.18-x86_64-slc6-gcc4.7
+export PYTHONPATH=$HOME/L1TriggerAnalysis/.local/lib/python2.7/site-packages:$PYTHONPATH
+```
+which sets up ROOT 5.34.18 with Python-2.7, and then it exports the location of the package you just extracted into the python path so you have access to NumPy, Matplotlib, and [atlas_jets](https://github.com/kratsg/atlas_jets).
+
 ## Contact
 [File an issue](https://github.com/kratsg/L1TriggerAnalysis/issues/new) or contact [Giordon Stark](https://github.com/kratsg) with any questions.
