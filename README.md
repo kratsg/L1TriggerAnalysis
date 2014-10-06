@@ -30,6 +30,9 @@ python make_plots.py --*kwargs
 ```
 and the list of keyword arguments from `python make_plots.py -h`. Notice that a base set of keyword arguments are the same to help with consistency and copy-paste if needed.
 
+### Submitting a job
+Simply, all you need to do is edit [main.sh](base/main.sh) from any physics analysis directory (this file is symlinked). Then you can just resubmit a condor job. The job submission process is on the idea that you want to generate a job with specific configurations and then just simply `cd` into the other directories and re-submit via `condor_submit config` without any extra work. I've set this up to do exactly that. Each directory is separate because the datasets are different and the plots need to be distinct.
+
 ### Obtaining the python packages
 If you run `ruby make_config.rb` and it states that it is missing `local.tar.gz` which is not included in this repository (62MB), you can grab a copy here: [faxbox::/user/kratsg/L1TriggerAnalysis/local.tar.gz](http://faxbox.usatlas.org/user/kratsg/L1TriggerAnalysis/local.tar.gz) or by XRootD
 ```
