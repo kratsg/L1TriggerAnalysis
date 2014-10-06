@@ -54,7 +54,7 @@ numJobs: 10
 Each job will run over 1000 events in the file. Like `numEvents`, you can also set this to a different value on a file-by-file basis.
 
 ### Setting up Plot configurations
-I also provide a `plot_configs.py` which only contains one variable right now, `the dataSetStr`. This is just a LaTeX string that gets rendered when making plots (such as for TTbar or ZH->nu nu bbar). Matplotlib can parse it correctly with standard LaTeX, but if you need help making this string, contact [Giordon Stark](https://github.com/kratsg) with questions, or [file an issue](https://github.com/kratsg/L1TriggerAnalysis/issues/new).
+I also provide a `plot_configs.py` which only contains one variable right now, the `dataSetStr`. This is just a LaTeX string that gets rendered when making plots (such as for TTbar or ZH->nu nu bbar). Matplotlib can parse it correctly with standard LaTeX, but if you need help making this string, contact [Giordon Stark](https://github.com/kratsg) with questions, or [file an issue](https://github.com/kratsg/L1TriggerAnalysis/issues/new).
 
 ## Contact
 [File an issue](https://github.com/kratsg/L1TriggerAnalysis/issues/new) or contact [Giordon Stark](https://github.com/kratsg) with any questions.
