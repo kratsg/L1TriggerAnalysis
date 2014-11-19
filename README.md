@@ -69,7 +69,7 @@ and then you just need to run
 localSetupROOT 5.34.18-x86_64-slc6-gcc4.7
 export PYTHONPATH=$HOME/L1TriggerAnalysis/.local/lib/python2.7/site-packages:$PYTHONPATH
 ```
-which sets up ROOT 5.34.18 with Python-2.7, and then it exports the location of the package you just extracted into the python path so you have access to NumPy, Matplotlib, and [atlas_jets](https://github.com/kratsg/atlas_jets).
+which sets up ROOT 5.34.18 with Python-2.7, and then it exports the location of the package you just extracted into the python path so you have access to NumPy, Matplotlib, [atlas_jets](https://github.com/kratsg/atlas_jets), and [rootpy](https://github.com/rootpy/rootpy).
 
 ## Contact
 [File an issue](https://github.com/kratsg/L1TriggerAnalysis/issues/new) or contact [Giordon Stark](https://github.com/kratsg) with any questions.
