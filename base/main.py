@@ -1,18 +1,4 @@
-from atlas_jets import *
-import numpy as np
-import root_numpy as rnp
-from ROOT import TFile, TLorentzVector
-
-from itertools import chain
-
-import os
-try:
-  import cPickle as pickle
-except:
-  import pickle
-
 import argparse
-import time
 
 parser = argparse.ArgumentParser(description='Process TTbar events for Level 1 Trigger.')
 parser.add_argument('--processNum',   type=int,   required=False, dest='process_num',     help='a process number for tagging files', default=0)
@@ -29,6 +15,22 @@ parser.add_argument('--digitization', type=float, required=False, dest='digitiza
 args = parser.parse_args()
 
 print args
+
+# load up everything else
+from atlas_jets import *
+import numpy as np
+import root_numpy as rnp
+from ROOT import TFile, TLorentzVector
+
+from itertools import chain
+
+import os
+try:
+  import cPickle as pickle
+except:
+  import pickle
+
+import time
 
 
 def ensure_dir(f):
