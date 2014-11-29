@@ -22,6 +22,7 @@ export PYTHONPATH=$HOME/.local/lib/python2.7/site-packages:$PYTHONPATH
 #   note that this particular environment is set in the `config`
 #   and that we need to export it within the current working directory
 export X509_USER_PROXY=$HOME/$X509_USER_PROXY_FILENAME
+echo $X509_USER_PROXY
 
 # print directory listing just for sanity
 ls -lavh

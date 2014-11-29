@@ -65,7 +65,7 @@ when_to_transfer_output = ON_Exit
 transfer_output         = True
 transfer_input_files    = #{localPython}, #{mainPython}, #{x509Proxy}
 transfer_output_files   = data
-environment             = "X509_USER_PROXY_FILENAME=x509up_u33155"
+environment             = "X509_USER_PROXY_FILENAME=x509up_u#{%x(id -u).chomp}"
 eos
 
 configurations = YAML.load_file(options[:configFile])
