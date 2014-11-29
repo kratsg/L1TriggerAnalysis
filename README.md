@@ -3,8 +3,35 @@ L1TriggerAnalysis
 
 Level 1 Trigger Analysis for gFEX
 
+This uses the [`atlas_jets`](https://github.com/kratsg/atlas_jets) package that I've been writing as well, to act as a wrapper for the incoming trigger data loaded from the files. The python packages are bundled up and can be copied over via XRootD, see instructions [here](#obtaining-the-python-packages).
 
-This uses the [`atlas_jets`](https://github.com/kratsg/atlas_jets) package that I've been writing as well, to act as a wrapper for the incoming trigger data loaded from the files.
+## Quick Start
+
+```bash
+ssh -Y kratsg@uct3.uchicago.edu
+setupATLAS
+cd Work/gFEX/
+git clone https://github.com/kratsg/L1TriggerAnalysis L1TriggerAnalysis
+cd L1TriggerAnalysis/
+localSetupFAX --rootVersion=current-SL6 && voms-proxy-init -voms atlas
+xrdcp root://faxbox.usatlas.org//user/kratsg/L1TriggerAnalysis/local.tar.gz local.tar.gz
+tar -xzf local.tar.gz 
+./scaffold.sh testAnalysis
+```
+
+### Flocking via Condor
+```bash
+cd testAnalysis/
+ruby make_config.rb
+condor_submit config
+```
+
+### To Run locally
+```bash
+. ./setupROOTandPython
+cd testAnalysis
+python main.py --processNum=0 --file=input.root --start=120 --numEvents=80 --seedEt=15 --towerThresh=6 --noiseFilter=0 --digitization=256
+```
 
 ## Scaffolding
 One can quickly scaffold a new physics analysis by running
