@@ -70,15 +70,17 @@ class PlotHelpers(object):
     for w, num, den in zip(hist_ratio, hist_one, hist_two):
       # root.cern.ch/root/html/src/TH1.cxx.html#l5.yxD
       # formula cited (for histograms [num, den] with no errors) is:
+      #     e1, e2 are errors of the bins, either by sqrt(sum(weights**2 for
+      #     bin)) or poisson sqrt(bin)
       #     w = num/den
       #     if w = 1:
       #             sigma = 0
       #     else:
-      #             sigma = abs( (1 - 2*w + w**2) / den**2 )
+      #             sigma = abs( ((1 - 2*w)* e1**2 + w**2 * e2**2) / den**2 )
       if w == 1.0:
         errors.append(0.0)
       else:
-        errors.append((np.abs((1.-2.*w + w**2.)/den**2.))**0.5/2.)
+        errors.append((np.abs(((1.-2.*w)*num + (w**2.)*den)/den**2.))**0.5)
     return errors
 
   def _profile(self, xbins, xvals, yvals):
@@ -120,6 +122,7 @@ class PlotHelpers(object):
 
   def add_legend(self, fig, ax, **kwargs):
     legend = ax.legend(fancybox=True, framealpha=0.75, fontsize=self.labelsize, **kwargs)
+    if isinstance(legend, None.__class__): return False
     legend.get_frame().set_facecolor(self.light_grey)
     legend.get_frame().set_linewidth(0.0)
 
@@ -128,15 +131,17 @@ class PlotHelpers(object):
       ypos = 0.95
     elif align[0] == 'b':
       ypos = 0.05
+    elif align[0] == 'c':
+      ypos = 0.45
     if align[1] == 'l':
       xpos = 0.05
     elif align[1] == 'r':
       xpos = 0.95
 
-    va = {'t': 'top', 'b': 'bottom'}[align[0]]
+    va = {'t': 'top', 'b': 'bottom', 'c': 'center'}[align[0]]
     ha = {'l': 'left', 'r': 'right'}[align[1]]
 
-    ax.text(xpos, ypos, "\n".join(strings), transform=ax.transAxes, fontsize=self.labelsize, verticalalignment=va, horizontalalignment=ha, bbox=self.textprops)
+    ax.text(xpos, ypos, "\n".join(filter(None, strings)), transform=ax.transAxes, fontsize=self.labelsize, verticalalignment=va, horizontalalignment=ha, bbox=self.textprops)
 
   def add_atlas(self, fig, ax, level=0):
     if level == 0:
@@ -178,11 +183,12 @@ class PlotHelpers(object):
   def to_file(self, fig, ax, filename, transparent=True):
     fig.savefig(self.write_file(filename), bbox_inches='tight', transparent=transparent)
 
-  def corr2d(self, x, y, bins_x, bins_y, label_x, label_y, xlim=None, ylim=None, profile_x=False, profile_y=False, title=None, strings=[], align='bl', ticks=None):
+  def corr2d(self, x, y, bins_x, bins_y, label_x, label_y, xlim=None, ylim=None, profile_x=False, profile_y=False, title=None, strings=[], align='bl', ticks=None, weights=None):
+    if weights is None:
+      weights = np.ones(x.size)
     corr = np.corrcoef(x, y)[0, 1]
     fig, ax = pl.subplots(figsize=self.figsize)
-    counts, edges_x, edges_y, im = ax.hist2d(x, y, bins=(bins_x, bins_y), norm=LogNorm(), alpha=0.75, cmap = self.cmap)
-
+    counts, edges_x, edges_y, im = ax.hist2d(x, y, bins=(bins_x, bins_y), norm=LogNorm(), alpha=0.75, cmap = self.cmap, weights=weights)
     ticks = ticks or np.logspace(0, np.log10(np.max(counts)), 10)
     cbar = fig.colorbar(im, ticks=ticks, format=self.label_formatter)
     self.format_cbar(cbar)

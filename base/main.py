@@ -97,7 +97,8 @@ seed_filter = gTowers.SeedFilter(et=args.seedEt_thresh, n=100)
 # for offline rho and vxp_n
 rho_column_name     = 'Eventshape_rhoKt4LC'
 vertices_column_name = 'vxp_nTracks'
-weight_column_name = 'weight'
+weight_column_name = 'weight'  # the weight stored in “weight” is just the “sample weight", or “cross-section weight”
+event_weights_column_name = 'mcevt_weight'  # event weight
 
 # offline and trigger jet column names to pull from the file, must be in this order to sync with the predefined classes in atlas_jets package
 offline_column_names = ['jet_AntiKt10LCTopoTrimmedPtFrac5SmallR30_%s' % col for col in ['pt', 'm', 'eta', 'phi', 'TrimmedSubjetsPtFrac5SmallR30_nsj', 'Tau1', 'Tau2', 'Tau3', 'SPLIT12', 'SPLIT23', 'SPLIT34', 'TrimmedSubjetsPtFrac5SmallR30_index']] + ['jet_AntiKt10LCTopoTrimmedSubjetsPtFrac5SmallR30_pt']
@@ -128,7 +129,7 @@ rhoCalcTimes = []
 oEventLoadTimes = []
 tEventLoadTimes = []
 
-allBranches = [rho_column_name, vertices_column_name, weight_column_name] + offline_column_names + gTower_column_names + trig_L1_et_column_names
+allBranches = [rho_column_name, vertices_column_name, weight_column_name, event_weights_column_name] + offline_column_names + gTower_column_names + trig_L1_et_column_names
 
 for event_num in xrange(args.event_start, args.event_start+args.num_events, args.step_size):
   t1 = time.time()
@@ -177,7 +178,7 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
     # now do offline rho and num vertices
     offline_rho = event[rho_column_name].item()/1000.  # it's an array of one element, so just return the element
     num_vertices = np.sum(event[vertices_column_name].tolist() >= 2)
-    event_weight = event[weight_column_name].item() or 1  # it's an array of one element, so just return the element (if it's 0 or 0.0, return 1.0)
+    event_weight = (event[weight_column_name].item() * event[event_weights_column_name][0][0].item()) or 1  # it's an array of one element, so just return the element (if it's 0 or 0.0, return 1.0)
 
     # Michael Begel messaged me this algorithm
     # max([T['trig_L1_jet_et8x8'][k]/1000.0 for k in xrange(T['trig_L1_jet_n']) if abs(T['trig_L1_jet_eta'][k])<3.2]+[1.0])>100.0
