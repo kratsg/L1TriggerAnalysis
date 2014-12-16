@@ -25,6 +25,10 @@ echo "Symlinking merge.py..."
 ln -s ../base/merge.py merge.py
 echo "Symlinking plots_wrapper.py..."
 ln -s ../base/plots_wrapper.py plots_wrapper.py
+echo "Symlinking make_plots_gTower.py..."
+ln -s ../base/make_plots_gTower.py make_plots_gTower.py
+echo "Symlinking make_oJetKinematics.py..."
+ln -s ../base/make_oJetKinematics.py make_oJetKinematics.py
 echo "Adding example dataset configuration file for make_config.rb..."
 cp ../base/datasets.yml datasets.yml
 echo "Adding example plot configuration file for plot_configs.rb..."
