@@ -45,7 +45,7 @@ seedCutStr  = '$E_T^\mathrm{seed} >\ %d\ \mathrm{GeV}$' % args.seedEt_thresh
 noiseCutStr = '$E_T^\mathrm{tower} >\ %d\ \mathrm{GeV}$' % args.noise_filter
 towerThrStr = '$\\rho\left(E_T^\mathrm{tower} <\ %d\ \mathrm{GeV}\\right)$' % args.tower_thresh
 
-helpers = PlotHelpers(dataSetStr=dataSetStr, seedCutStr=seedCutStr, noiseCutStr=noiseCutStr, towerThrStr=towerThrStr)
+helpers = PlotHelpers(dataSetStr=dataSetStr, seedCutStr=seedCutStr, noiseCutStr=noiseCutStr, towerThrStr=towerThrStr, labelsize=28)
 
 tJet_exists = data['tJet.et'] > 0.
 
@@ -126,9 +126,9 @@ try:
   seed_Et, gTower_Et[0], gTower_Et[1], gTower_Et[2] = np.array([[seed.et, towers[0].et, towers[1].et, towers[2].et] for seed, towers in zip(data['tJet.seed'], data['tJet.towers'])])[valid_gJets].T
   all_gTower_Et = np.sort(np.vstack((seed_Et, gTower_Et)), axis=0)[::-1, :]
 
-  ax.hist(seed_Et, bins=np.arange(0.0, 100.0, 2.5), stacked=True, fill=False, histtype='step', color=helpers.colors[0], label='$E_T^\mathrm{seed}$', linewidth=helpers.linewidth)
+  ax.hist(seed_Et, bins=np.arange(0.0, 100.0, 2.5), stacked=True, fill=False, histtype='step', color=helpers.colors[0], label='$E_T^\mathrm{seed}$', linewidth=helpers.linewidth, weights=data['weight'][np.where(tJet_exists)])
   for datapts, color, label in zip(all_gTower_Et, helpers.colors[1:], labels):
-    ax.hist(datapts, bins=np.arange(0.0, 100.0, 2.5), stacked=True, fill=False, histtype='step', color=color, label=label, linewidth=helpers.linewidth)
+    ax.hist(datapts, bins=np.arange(0.0, 100.0, 2.5), stacked=True, fill=False, histtype='step', color=color, label=label, linewidth=helpers.linewidth, weights=data['weight'][np.where(tJet_exists)])
   helpers.add_legend(fig, ax)
   helpers.add_grid(fig, ax)
   helpers.add_labels(fig, ax, xlabel='trigger jet\'s $E_T^\mathrm{gTower}$ [GeV]', ylabel=r'count/2.5 GeV bin')
@@ -148,7 +148,7 @@ profiles_scaled = {}
 for datapts, label in zip(all_gTower_Et, ['gTower 0', 'gTower 1', 'gTower 2', 'gTower 3']):
   try:
     fig, ax = pl.subplots(figsize=helpers.figsize)
-    counts, edges_x, edges_y, im = ax.hist2d(datapts, data['oJet.nsj'][valid_gJets], bins=(np.arange(0., 100., 2.5), np.arange(1, 7, 1)), norm=LogNorm(), alpha=0.75, cmap=helpers.cmap)
+    counts, edges_x, edges_y, im = ax.hist2d(datapts, data['oJet.nsj'][valid_gJets], bins=(np.arange(0., 100., 2.5), np.arange(1, 7, 1)), norm=LogNorm(), alpha=0.75, cmap=helpers.cmap, weights=data['weight'][np.where(tJet_exists)])
     points_y, mean_x, err_x = helpers.profile_x(edges_y, data['oJet.nsj'][valid_gJets], datapts)
     profiles[label.replace(' ', '_')] = {'x': mean_x, 'y': points_y, 'e': err_x}
     ax.scatter(mean_x, points_y, s=80, facecolor='w', edgecolor='k', marker='o', linewidth=2)
@@ -167,7 +167,7 @@ for datapts, label in zip(all_gTower_Et, ['gTower 0', 'gTower 1', 'gTower 2', 'g
     pl.close(fig)
 
     fig, ax = pl.subplots(figsize=helpers.figsize)
-    counts, edges_x, edges_y, im = ax.hist2d(datapts/data['tJet.et'][valid_gJets], data['oJet.nsj'][valid_gJets], bins=(np.arange(0., 1., 0.05), np.arange(1, 7, 1)), norm=LogNorm(), alpha=0.75, cmap=helpers.cmap)
+    counts, edges_x, edges_y, im = ax.hist2d(datapts/data['tJet.et'][valid_gJets], data['oJet.nsj'][valid_gJets], bins=(np.arange(0., 1., 0.05), np.arange(1, 7, 1)), norm=LogNorm(), alpha=0.75, cmap=helpers.cmap, weights=data['weight'][np.where(tJet_exists)])
     points_y, mean_x, err_x = helpers.profile_x(edges_y, data['oJet.nsj'][valid_gJets], datapts/data['tJet.et'][valid_gJets])
     profiles_scaled[label.replace(' ', '_')] = {'x': mean_x, 'y': points_y, 'e': err_x}
     ax.scatter(mean_x, points_y, s=80, facecolor='w', edgecolor='k', marker='o', linewidth=2)
@@ -243,6 +243,7 @@ try:
   # make a correlation of corrected Et versus trigger jet Et
   y = all_gTower_Et[0]
   x = np.array([el[0] for el in data['oJet.subjetsPt'][valid_gJets]])
+  weights = data['weight'][np.where(tJet_exists)]
   bins_x = np.arange(0., 200., 4.)
   bins_y = np.arange(0., 100., 2.)
   xlim = (0., 200.)
@@ -250,7 +251,7 @@ try:
   label_y = r'leading $E_T^{\mathrm{gTower}}$/2 GeV [GeV]'
   label_x = r'leading $P_T^{\mathrm{oJet\ subjet}}$/4 GeV [GeV]'
   fig, ax = helpers.corr2d(x, y, bins_x, bins_y, label_x, label_y, xlim=xlim, ylim=ylim, profile_x=True, align='tl',
-                           strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr])
+                           strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr], weights=weights)
 
   ax.plot((0., 200.), (args.seedEt_thresh, args.seedEt_thresh), 'k-', linewidth=helpers.linewidth, zorder=0)
 
@@ -268,46 +269,123 @@ for region in regions.keys():
   region_cut = helpers.region_cut(data['tJet.eta'], region)
   regions[region] = region_cut
 
+NoCut = np.ones(np.sum(tJet_exists)).astype(bool)
+PtCut = (250. <= data['oJet.pt'][np.where(tJet_exists)]) & (data['oJet.pt'][np.where(tJet_exists)] <= 500.)
+MassCut = (100. <= data['oJet.m'][np.where(tJet_exists)]) & (data['oJet.m'][np.where(tJet_exists)] <= 220.)
 
-for gTowerEt_cut in [0., 5., 10., 15., 20., 25., 30., 35., 40., 45., 50.]:
-  oJetsubjets_count = np.array(map(lambda x: np.sum(x > 20.0), data['oJet.subjetsPt']))
-  gTowersnsj_count = np.sum(all_gTower_Et > gTowerEt_cut, axis=0)
-  for oJetnsj_cut in [2, 3]:
-    fig, ax = pl.subplots(figsize=helpers.figsize)
-    pl_eff_diff = {}
-    # find jets with exactly N subjets with Pt >= 20.0 GeV
-    den_cut = oJetsubjets_count == oJetnsj_cut
-    # now apply the numerator cut and loop over to add each turnon curve
-    for gTowerN in [1, 2, 3]:
-      pickleData = pl_eff_diff['gTowerN{}'.format(gTowerN)] = {}
-      gTowerEtThrStr = r'$N(E_T^\mathrm{{gFEX\ tower}} >\ {:0.2f}\ \mathrm{{GeV}})$'.format(gTowerEt_cut)
-      oJetnsjCutStr = r'$N(P_T^\mathrm{{oJet\ subjet}} >\ 20 \ \mathrm{{GeV}}) = {:d}$'.format(oJetnsj_cut)
-      num_cut = gTowersnsj_count >= gTowerN
+PtCutLabel = "$250\ \mathrm{GeV}\ \leq P_T^\mathrm{oJet} \leq\ 500\ \mathrm{GeV}$"
+MassCutLabel = "\n$100\ \mathrm{GeV}\ \leq m^\mathrm{oJet} \leq\ 220\ \mathrm{GeV}$"
 
-      # helpers.add_turnon() returns xpoints_efficiency, hist_eff_curve, errors_eff, nonzero_bins, w
-      x, y, e, n, w = helpers.add_turnon(fig, ax, data=gTowersnsj_count, den_cut=den_cut[np.where(tJet_exists)], num_cut=num_cut, bins=np.arange(6), label=r'$N(\mathrm{{gTowerEt}}) \geq {}$'.format(gTowerN), p0=(1., 50., gTowerEt_cut, 0.5))
-      pickleData['xdata'] = x
-      pickleData['ydata'] = y
-      pickleData['xerr'] = 1.0
-      pickleData['yerr'] = e
-      pickleData['nonzero_bins'] = n
-      pickleData['fit'] = w
+offlineCuts = [NoCut, PtCut, PtCut & MassCut]
 
-    ax.set_xlim((0.0, 6.0))
-    ax.set_ylim((0.0, 1.1))
+dataStorage = {}
 
-    ax.set_xticklabels('')  # clear major tick labels on y-axis
-    # add the labels on the minor ticks
-    ax.set_xticks([1.5, 2.5, 3.5, 4.5, 5.5], minor=True)
-    ax.set_xticklabels(['1', '2', '3', '4', '5'], minor=True)
+print "Making subjet efficiency studies"
+for gJetEt_cut in [200., 250., 300., 350.]:
+  print "\t"*1, "gJetEt_cut = {}".format(gJetEt_cut)
+  # add storage by gJetEt cut
+  dataStorage['gJetEtCut_{:0.0f}'.format(gJetEt_cut)] = {}
+  # create trigger cut
+  triggerCut = (data['tJet.et'] >= gJetEt_cut)[np.where(tJet_exists)]
+  gJetEtCutLabel = '$E_T^\mathrm{{gFEX\ jet}} \geq {:0.2f}\ \mathrm{{GeV}}$'.format(gJetEt_cut)
 
-    helpers.add_labels(fig, ax, xlabel=r'$N(E_T^\mathrm{{gTower}} > {:0.2f}\ \mathrm{{GeV}}$'.format(gTowerEt_cut), ylabel='Trigger Efficiency - Differential')
-    helpers.add_description(fig, ax, align='br', strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr, gTowerEtThrStr, oJetnsjCutStr])
-    helpers.add_legend(fig, ax)
-    helpers.add_grid(fig, ax)
-    pickle.dump(pl_eff_diff, file(helpers.write_file('plots/pickle/matched_differential_{}_gTowerEt{:0.0f}.pkl'.format(filename_id, gTowerEt_cut)), 'w+'))
-    helpers.to_file(fig, ax, 'plots/differential/{}_gTowerEt{:0.0f}_oJetnsj{:d}.png'.format(filename_id, gTowerEt_cut, oJetnsj_cut))
-    pl.close(fig)
+  fig, ax = pl.subplots(figsize=helpers.figsize)
+  x, y, e, n, w = helpers.add_turnon(fig, ax, data=data['oJet.pt'][np.where(tJet_exists)], den_cut=MassCut, num_cut=(data['tJet.et'][np.where(tJet_exists)] > gJetEt_cut), label='no subt., no shift', p0=(1., 50., gJetEt_cut, 0.5))
+
+  ax.set_xlim((0.0, 450.0))
+  ax.set_ylim((0.0, 1.1))
+
+  helpers.add_labels(fig, ax, xlabel='offline $p_T^{\mathrm{jet}}$ [GeV]', ylabel='Trigger Efficiency - Differential')
+  helpers.add_description(fig, ax, align='tl', strings=[helpers.dataSetStr, 'iso., $\Delta R(\mathrm{gJet},\mathrm{oJet})\leq 1$', helpers.seedCutStr, helpers.noiseCutStr, MassCutLabel])
+  helpers.add_legend(fig, ax, loc='lower left')
+  helpers.add_grid(fig, ax)
+
+  helpers.to_file(fig, ax, 'plots/subjets/{}_differential_gJetEt{:0.0f}{}.png'.format(filename_id, gJetEt_cut, '_100oJetM220'))
+  pl.close(fig)
+
+  for offlineCut, offlineLabel, filenameEnd in zip(offlineCuts, [r'', PtCutLabel, "{}{}".format(PtCutLabel, MassCutLabel)], ['', '_250oJetPt500', '_250oJetPt500_100oJetM220']):
+    print "\t"*2, filenameEnd
+    # add storage by offline cut
+    dataStorage['gJetEtCut_{:0.0f}'.format(gJetEt_cut)][filenameEnd] = {}
+    oJetsubjets_count = np.array(map(lambda x: np.sum(x > 20.0), data['oJet.subjetsPt'][np.where(tJet_exists)]))
+
+    for gTowerEt_cut in [5., 10., 15., 20., 25.]:
+      print "\t"*3, "gTowerEt_cut = {}".format(gTowerEt_cut)
+      # add storage by gTowerEt cut
+      dataStorage['gJetEtCut_{:0.0f}'.format(gJetEt_cut)][filenameEnd]['gTowerEtCut_{:0.0f}'.format(gTowerEt_cut)] = {}
+      gTowersnsj_count = np.sum(all_gTower_Et > gTowerEt_cut, axis=0)
+      # make a label for gTowerEt cut
+      gTowerEtThrLabel = r'$N\left(E_T^\mathrm{{gFEX\ tower}} >\ {:0.2f}\ \mathrm{{GeV}}\right) \geq X$'.format(gTowerEt_cut)
+      fig, ax = pl.subplots(figsize=helpers.figsize)
+
+      for oJetnsj_cut, color in zip([0, 1, 2, 3, 4], helpers.colors):
+        print "\t"*4, "oJetnsj_cut = {}".format(oJetnsj_cut)
+        # add storage by oJetnsj_cut
+        myStore = dataStorage['gJetEtCut_{:0.0f}'.format(gJetEt_cut)][filenameEnd]['gTowerEtCut_{:0.0f}'.format(gTowerEt_cut)]['oJetnsjCut_{:d}'.format(oJetnsj_cut)] = {}
+        # find oJets with exactly N subjets with Pt >= 20.0 GeV
+        cut = (oJetsubjets_count >= oJetnsj_cut)
+        # make a label for oJet nsj cut
+        oJetnsjCutLabel = r'$N(P_T^\mathrm{{oJet\ subjet}} >\ 20 \ \mathrm{{GeV}}) \geq {:d}$'.format(oJetnsj_cut)
+        # make histograms, sum, and plot
+        hist, bins = np.histogram(gTowersnsj_count[np.where(cut & offlineCut & triggerCut)], bins=np.arange(1, 6, 1), weights=data['weight'][np.where(tJet_exists)][np.where(cut & offlineCut & triggerCut)])
+        cumsum = np.cumsum(hist[::-1].astype(float))[::-1]/np.sum(hist)
+        ax.plot(bins[:-1], cumsum, linestyle='steps-mid', alpha=0.75, color=color, marker='x', ms=20, mew=10, linewidth=0, label=oJetnsjCutLabel)
+        # store the data
+        myStore['bins'] = bins[:-1]
+        myStore['vals'] = cumsum
+
+      ax.set_xlim((-1.0, 6.0))
+      ax.set_ylim((0.0, 2.0))
+      ax.set_xticks(np.arange(1, 5, 1))
+      ax.set_yticks(np.linspace(0., 1., 6))
+      helpers.add_legend(fig, ax, numpoints=1)
+      helpers.add_labels(fig, ax, xlabel=gTowerEtThrLabel, ylabel=plotConfigs.yaxis_efficiencyLabel, title=gJetEtCutLabel)
+      helpers.add_description(fig, ax, align='tl', strings=[helpers.dataSetStr, 'iso., $\Delta R(\mathrm{gJet},\mathrm{oJet})\leq 1$', helpers.seedCutStr, helpers.noiseCutStr, offlineLabel])
+      helpers.add_grid(fig, ax)
+      helpers.to_file(fig, ax, 'plots/subjets/{}_XgTower_gJetEt{:0.0f}_gTowerEt{:0.0f}{}.png'.format(filename_id, gJetEt_cut, gTowerEt_cut, filenameEnd))
+      pl.close(fig)
+
+      print "\t"*4, "-----"
+      # make the denominator
+      hist_den, bins_den = np.histogram(oJetsubjets_count[np.where(offlineCut)], bins=np.arange(1, 6, 1), weights=data['weight'][np.where(tJet_exists)][np.where(offlineCut)])
+      # integral, inclusive
+      hist_den = np.cumsum(hist_den[::-1])[::-1]
+
+      fig, ax = pl.subplots(figsize=helpers.figsize)
+      for gJetnsj_cut, color in zip([1, 2, 3, 4], helpers.colors):
+        print "\t"*4, "gJetnsj_cut = {}".format(gJetnsj_cut)
+        # add storage by oJetnsj_cut
+        myStore = dataStorage['gJetEtCut_{:0.0f}'.format(gJetEt_cut)][filenameEnd]['gTowerEtCut_{:0.0f}'.format(gTowerEt_cut)]['gJetnsjCut_{:d}'.format(gJetnsj_cut)] = {}
+
+        # find gJets with >= N gTowers with Et > gTowerEt_cut
+        cut = (gTowersnsj_count >= gJetnsj_cut)
+
+        # make a label for gJet nsj cut
+        gJetnsjCutLabel = r'$N(E_T^\mathrm{{gJet\ gTower}} > {:0.2f} \ \mathrm{{GeV}}) \geq {:d}$'.format(gTowerEt_cut, gJetnsj_cut)
+
+        hist_num, bins_num = np.histogram(oJetsubjets_count[np.where(cut & offlineCut & triggerCut)], bins=np.arange(1, 6, 1), weights=data['weight'][np.where(tJet_exists)][np.where(cut & offlineCut & triggerCut)])
+        # integral, inclusive
+        hist_num = np.cumsum(hist_num[::-1])[::-1]
+
+        vals = hist_num.astype(float)/hist_den.astype(float)
+        ax.plot(bins_den[:-1], vals, linestyle='steps-mid', alpha=0.75, color=color, marker='x', ms=20, mew=10, linewidth=0, label=gJetnsjCutLabel)
+
+        # store the data
+        myStore['bins'] = bins_den[:-1]
+        myStore['vals'] = vals
+
+      ax.set_xlim((0.0, 6.0))
+      ax.set_ylim((0.0, 2.0))
+      ax.set_xticks(np.arange(1, 6, 1))
+      ax.set_yticks(np.linspace(0., 1., 6))
+      helpers.add_legend(fig, ax, numpoints=1)
+      helpers.add_labels(fig, ax, xlabel=r'$N(P_T^\mathrm{{oJet\ subjet}} >\ 20 \ \mathrm{{GeV}}) \geq X$', ylabel='Efficiency', title=gJetEtCutLabel)
+      helpers.add_description(fig, ax, align='tl', strings=[helpers.dataSetStr, 'isolated, $\Delta R(\mathrm{gJet},\mathrm{oJet})\leq 1$', helpers.seedCutStr, helpers.noiseCutStr, offlineLabel])
+      helpers.add_grid(fig, ax)
+      helpers.to_file(fig, ax, 'plots/subjets/{}_XoJet_gJetEt{:0.0f}_gTowerEt{:0.0f}{}.png'.format(filename_id, gJetEt_cut, gTowerEt_cut, filenameEnd))
+      pl.close(fig)
+
+pickle.dump(dataStorage, file(helpers.write_file('plots/subjets/{}.pkl'.format(filename_id)), 'w+'))
 
 endTime_wall      = time.time()
 endTime_processor = time.clock()
