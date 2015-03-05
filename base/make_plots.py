@@ -250,7 +250,7 @@ for i, cut in regions.iteritems():
   f = interp1d(points_x, mean_y, bounds_error=False, fill_value=0., kind='cubic')
 
   print "\t", "efficiency curves using tJet Et cut in numerator"
-  for tJetEt_cut in [0., 140.]:
+  for tJetEt_cut in [100., 120., 140., 160., 180., 200., 220., 240., 260., 280., 300.]:
     # ADD IN np.interp(tJetEt_cut, trigger_Et, rho*A) and shift subtracted eff curves
     eff_curve_shift = f([tJetEt_cut])[0]
     print "\t"*2, "tJetEt_cut = {}, eff_curve_shift = {}".format(tJetEt_cut, eff_curve_shift)
@@ -287,8 +287,8 @@ for i, cut in regions.iteritems():
     ax.set_ylim((0.0, 1.1))
 
     helpers.add_labels(fig, ax, xlabel='offline $p_T^{\mathrm{jet}}$ [GeV]', ylabel='Trigger Efficiency - Differential')
-    helpers.add_description(fig, ax, align='br', strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr, 'Shift: {:0.4f}'.format(eff_curve_shift)])
-    helpers.add_legend(fig, ax)
+    helpers.add_description(fig, ax, align='br', strings=[helpers.dataSetStr, helpers.seedCutStr, helpers.noiseCutStr, helpers.towerThrStr, tJetEtThrStr, '$\mathrm{{Shift:}}\ {:0.4f}\ \mathrm{{GeV}}$'.format(eff_curve_shift)])
+    helpers.add_legend(fig, ax, loc='lower left')
     helpers.add_grid(fig, ax)
     pickle.dump(pl_eff_diff, file(helpers.write_file('plots/pickle/matched_differential_%s_trigger%d_region%s.pkl' % (filename_id, tJetEt_cut, i)), 'w+'))
     helpers.to_file(fig, ax, 'plots/differential/{}_trigger{:0.0f}_region{}.png'.format(filename_id, tJetEt_cut, i))

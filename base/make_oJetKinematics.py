@@ -79,6 +79,10 @@ patches = [unweightedPatches[0], weightedPatches[0]]
 labels = [p.get_label() for p in patches]
 ax.set_yscale('log', nonposy='clip')
 axt.set_yscale('log', nonposy='clip')
+
+ax.set_ylim((1e-5, ax.get_ylim()[1]))
+axt.set_ylim((1e-5, axt.get_ylim()[1]))
+
 legend = ax.legend(patches, labels, fancybox=True, framealpha=0.75, fontsize=helpers.labelsize)
 legend.get_frame().set_facecolor(helpers.light_grey)
 legend.get_frame().set_linewidth(0.0)
@@ -118,6 +122,10 @@ patches = [unweightedPatches[0], weightedPatches[0]]
 labels = [p.get_label() for p in patches]
 ax.set_yscale('log', nonposy='clip')
 axt.set_yscale('log', nonposy='clip')
+
+ax.set_ylim((1e-5, ax.get_ylim()[1]))
+axt.set_ylim((1e-5, axt.get_ylim()[1]))
+
 legend = ax.legend(patches, labels, fancybox=True, framealpha=0.75, fontsize=helpers.labelsize)
 legend.get_frame().set_facecolor(helpers.light_grey)
 legend.get_frame().set_linewidth(0.0)
@@ -157,6 +165,10 @@ patches = [unweightedPatches[0], weightedPatches[0]]
 labels = [p.get_label() for p in patches]
 ax.set_yscale('log', nonposy='clip')
 axt.set_yscale('log', nonposy='clip')
+
+ax.set_ylim((1e-5, ax.get_ylim()[1]))
+axt.set_ylim((1e-5, axt.get_ylim()[1]))
+
 legend = ax.legend(patches, labels, fancybox=True, framealpha=0.75, fontsize=helpers.labelsize)
 legend.get_frame().set_facecolor(helpers.light_grey)
 legend.get_frame().set_linewidth(0.0)
@@ -196,6 +208,10 @@ patches = [unweightedPatches[0], weightedPatches[0]]
 labels = [p.get_label() for p in patches]
 ax.set_yscale('log', nonposy='clip')
 axt.set_yscale('log', nonposy='clip')
+
+ax.set_ylim((1e-5, ax.get_ylim()[1]))
+axt.set_ylim((1e-5, axt.get_ylim()[1]))
+
 legend = ax.legend(patches, labels, fancybox=True, framealpha=0.75, fontsize=helpers.labelsize)
 legend.get_frame().set_facecolor(helpers.light_grey)
 legend.get_frame().set_linewidth(0.0)

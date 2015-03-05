@@ -36,7 +36,7 @@ end
 
 puts "Found main python script\n\t#{mainPython}"
 
-unless File.exist?(x509Proxy) or x509Proxy != `echo $X509_USER_PROXY`.chomp then
+unless File.exist?(x509Proxy) and x509Proxy == `echo $X509_USER_PROXY`.chomp then
   puts "Cannot find your proxy file #{x509Proxy}.\n\t- Are you sure you set it up? Run `localSetupFAX && voms-proxy-init -voms atlas` to set it up.\n\t- If it is set up, but the filename is wrong, please contact Giordon Stark (kratsg@uchicago.edu)."
   exit
 end
