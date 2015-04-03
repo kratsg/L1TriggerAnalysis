@@ -169,7 +169,7 @@ for event_num in xrange(args.event_start, args.event_start+args.num_events, args
         else:
           temp_gTowerEt = np.floor(event[col].tolist()/args.digitization)*args.digitization
         gTowerData.append(temp_gTowerEt)
-        hist_gTowerMult, bins_gTowerMult = np.histogram(temp_gTowerEt/1000., bins=np.arange(0.0, 100.0, 2.0))
+        hist_gTowerMult, bins_gTowerMult = np.histogram(temp_gTowerEt/1000., bins=np.arange(0.0, 1024.0, 32.0))
         del temp_gTowerEt
       else:
         # no digitization

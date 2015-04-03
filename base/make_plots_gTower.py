@@ -51,7 +51,7 @@ tJet_exists = data['tJet.et'] > 0.
 
 bins_efficiency = np.arange(0., 2000., 10.)
 width_efficiency = np.array([x - bins_efficiency[i-1] for i, x in enumerate(bins_efficiency)][1:])
-bins_multiplicity = np.arange(0.0, 100.0, 2.0)
+bins_multiplicity = np.arange(0.0, 1024.0, 32.0)
 
 bins_rho = np.arange(0., 70., 0.5)
 bins_vertices = np.arange(0., 100., 1.)
